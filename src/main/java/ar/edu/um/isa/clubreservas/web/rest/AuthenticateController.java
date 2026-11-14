@@ -3,6 +3,7 @@ package ar.edu.um.isa.clubreservas.web.rest;
 import static ar.edu.um.isa.clubreservas.security.SecurityUtils.AUTHORITIES_CLAIM;
 import static ar.edu.um.isa.clubreservas.security.SecurityUtils.JWT_ALGORITHM;
 import static ar.edu.um.isa.clubreservas.security.SecurityUtils.USER_ID_CLAIM;
+import static net.logstash.logback.argument.StructuredArguments.kv;
 
 import ar.edu.um.isa.clubreservas.security.DomainUserDetailsService.UserWithId;
 import ar.edu.um.isa.clubreservas.web.rest.vm.LoginVM;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -60,7 +62,15 @@ public class AuthenticateController {
             loginVM.getPassword()
         );
 
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        Authentication authentication;
+        try {
+            authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        } catch (AuthenticationException e) {
+            // Log de seguridad (alerta de fuerza bruta en Kibana). Nunca se loguea la contraseña.
+            LOG.warn("Login fallido {} {}", kv("evento", "LOGIN_FALLIDO"), kv("usuario", loginVM.getUsername()));
+            throw e;
+        }
+        LOG.info("Login exitoso {} {}", kv("evento", "LOGIN_OK"), kv("usuario", authentication.getName()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = this.createToken(authentication, loginVM.isRememberMe());
         HttpHeaders httpHeaders = new HttpHeaders();

@@ -1,5 +1,7 @@
 package ar.edu.um.isa.clubreservas.service;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 import ar.edu.um.isa.clubreservas.domain.Cancha;
 import ar.edu.um.isa.clubreservas.domain.Reserva;
 import ar.edu.um.isa.clubreservas.domain.User;
@@ -98,9 +100,26 @@ public class ReservaService {
         reserva.setEstado(EstadoReserva.CONFIRMADA);
         reserva.setCreadaEn(Instant.now(clock));
 
-        validarNuevaReserva(reserva);
+        try {
+            validarNuevaReserva(reserva);
+        } catch (ReglaReservaException e) {
+            LOG.warn(
+                "Reserva rechazada {} {} {}",
+                kv("evento", "RESERVA_RECHAZADA"),
+                kv("motivo", e.getCodigo()),
+                kv("cancha", cancha.getNombre())
+            );
+            throw e;
+        }
 
         reserva = reservaRepository.save(reserva);
+        LOG.info(
+            "Reserva creada {} {} {} {}",
+            kv("evento", "RESERVA_CREADA"),
+            kv("reserva_id", reserva.getId()),
+            kv("cancha", cancha.getNombre()),
+            kv("duracion", reserva.getDuracionMinutos())
+        );
         return reservaMapper.toDto(reserva);
     }
 
@@ -199,7 +218,15 @@ public class ReservaService {
                     throw new ReglaReservaException("cancelaciontardia", "Las reservas se cancelan con al menos 2 horas de anticipación");
                 }
                 reserva.setEstado(EstadoReserva.CANCELADA);
-                return reservaMapper.toDto(reservaRepository.save(reserva));
+                Reserva cancelada = reservaRepository.save(reserva);
+                LOG.info(
+                    "Reserva cancelada {} {} {} {}",
+                    kv("evento", "RESERVA_CANCELADA"),
+                    kv("reserva_id", cancelada.getId()),
+                    kv("cancha", cancelada.getCancha().getNombre()),
+                    kv("por", esAdmin ? "admin" : "socio")
+                );
+                return reservaMapper.toDto(cancelada);
             });
     }
 
