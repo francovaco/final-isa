@@ -14,6 +14,7 @@ import ar.edu.um.isa.clubreservas.domain.Cancha;
 import ar.edu.um.isa.clubreservas.domain.Deporte;
 import ar.edu.um.isa.clubreservas.domain.enumeration.Superficie;
 import ar.edu.um.isa.clubreservas.repository.CanchaRepository;
+import ar.edu.um.isa.clubreservas.security.AuthoritiesConstants;
 import ar.edu.um.isa.clubreservas.service.CanchaService;
 import ar.edu.um.isa.clubreservas.service.dto.CanchaDTO;
 import ar.edu.um.isa.clubreservas.service.mapper.CanchaMapper;
@@ -44,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 @IntegrationTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(authorities = AuthoritiesConstants.ADMIN)
 class CanchaResourceIT {
 
     private static final String DEFAULT_NOMBRE = "AAAAAAAAAA";

@@ -1,6 +1,7 @@
 package ar.edu.um.isa.clubreservas.web.rest;
 
 import ar.edu.um.isa.clubreservas.repository.CanchaRepository;
+import ar.edu.um.isa.clubreservas.security.AuthoritiesConstants;
 import ar.edu.um.isa.clubreservas.service.CanchaService;
 import ar.edu.um.isa.clubreservas.service.dto.CanchaDTO;
 import ar.edu.um.isa.clubreservas.web.rest.errors.BadRequestAlertException;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -50,6 +52,7 @@ public class CanchaResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CanchaDTO> createCancha(@Valid @RequestBody CanchaDTO canchaDTO) throws URISyntaxException {
         LOG.debug("REST request to save Cancha : {}", canchaDTO);
         if (canchaDTO.getId() != null) {
@@ -72,6 +75,7 @@ public class CanchaResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CanchaDTO> updateCancha(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody CanchaDTO canchaDTO
@@ -106,6 +110,7 @@ public class CanchaResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CanchaDTO> partialUpdateCancha(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody CanchaDTO canchaDTO
@@ -162,6 +167,7 @@ public class CanchaResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCancha(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Cancha : {}", id);
         canchaService.delete(id);

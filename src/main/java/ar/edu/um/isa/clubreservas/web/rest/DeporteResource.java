@@ -1,6 +1,7 @@
 package ar.edu.um.isa.clubreservas.web.rest;
 
 import ar.edu.um.isa.clubreservas.repository.DeporteRepository;
+import ar.edu.um.isa.clubreservas.security.AuthoritiesConstants;
 import ar.edu.um.isa.clubreservas.service.DeporteService;
 import ar.edu.um.isa.clubreservas.service.dto.DeporteDTO;
 import ar.edu.um.isa.clubreservas.web.rest.errors.BadRequestAlertException;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -50,6 +52,7 @@ public class DeporteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<DeporteDTO> createDeporte(@Valid @RequestBody DeporteDTO deporteDTO) throws URISyntaxException {
         LOG.debug("REST request to save Deporte : {}", deporteDTO);
         if (deporteDTO.getId() != null) {
@@ -72,6 +75,7 @@ public class DeporteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<DeporteDTO> updateDeporte(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody DeporteDTO deporteDTO
@@ -106,6 +110,7 @@ public class DeporteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<DeporteDTO> partialUpdateDeporte(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody DeporteDTO deporteDTO
@@ -161,6 +166,7 @@ public class DeporteResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteDeporte(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Deporte : {}", id);
         deporteService.delete(id);
