@@ -1,18 +1,78 @@
 # ClubReservas: entorno completo con un solo comando.
 #
+#   ./start.sh                (crea el .env si falta, levanta todo y espera a que esté listo)
+#   o bien:
 #   cp .env.example .env      (la primera vez; cambiar las contraseñas)
-#   docker compose up -d
+#   docker compose up -d      (la primera vez construye la imagen de la app: tarda unos minutos)
 #
 # Servicios:
-#   - elasticsearch, logstash, kibana: stack ELK para los logs de la app
+#   - app: ClubReservas (Spring Boot + Angular PWA), perfil prod  -> http://localhost:8080
+#   - postgresql: base de datos de la app
+#   - elasticsearch, logstash, kibana: stack ELK para los logs     -> http://localhost:5601
 #   - elk-setup / kibana-setup: contenedores de una sola vez que dejan ELK configurado
 #     (usuarios, plantilla de índice, data views, dashboard y alertas)
-#   (Fase 6: se agregan la app y PostgreSQL)
+#
+# Solo app + base de datos (sin ELK, como en el CI):  docker compose up -d --no-deps postgresql app
 #
 # Puertos publicados solo en 127.0.0.1 (no quedan expuestos a la red).
 name: clubreservas
 
 services:
+  app:
+    image: clubreservas:latest
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/clubReservas
+      SPRING_DATASOURCE_USERNAME: clubReservas
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?Definir POSTGRES_PASSWORD en .env}
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://postgresql:5432/clubReservas
+      SPRING_LIQUIBASE_USER: clubReservas
+      SPRING_LIQUIBASE_PASSWORD: ${POSTGRES_PASSWORD}
+      JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET: ${JWT_BASE64_SECRET:?Definir JWT_BASE64_SECRET en .env}
+      # Logs a ELK. Si Logstash no está (ej. "docker compose up app"), la app funciona igual.
+      JHIPSTER_LOGGING_LOGSTASH_ENABLED: 'true'
+      JHIPSTER_LOGGING_LOGSTASH_HOST: logstash
+      JHIPSTER_LOGGING_LOGSTASH_PORT: '5000'
+    ports:
+      - 127.0.0.1:8080:8080
+    mem_limit: 768m
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ['CMD', 'curl', '-sf', 'http://localhost:8080/management/health']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      logstash:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+
+  postgresql:
+    image: postgres:17.4
+    environment:
+      POSTGRES_DB: clubReservas
+      POSTGRES_USER: clubReservas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5432:5432
+    mem_limit: 512m
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U clubReservas -d clubReservas']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.5.4
     environment:
@@ -116,4 +176,5 @@ services:
     restart: 'no'
 
 volumes:
+  postgresql-data:
   elasticsearch-data:
