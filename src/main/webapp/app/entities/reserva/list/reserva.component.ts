@@ -12,7 +12,10 @@ import { FormsModule } from '@angular/forms';
 import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
 import { FilterComponent, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
+import { AccountService } from 'app/core/auth/account.service';
+import { Authority } from 'app/config/authority.constants';
 import { IReserva } from '../reserva.model';
+import { puedeCancelar } from '../reserva-reglas';
 
 import { EntityArrayResponseType, ReservaService } from '../service/reserva.service';
 import { ReservaDeleteDialogComponent } from '../delete/reserva-delete-dialog.component';
@@ -49,6 +52,7 @@ export class ReservaComponent implements OnInit {
   protected readonly sortService = inject(SortService);
   protected modalService = inject(NgbModal);
   protected ngZone = inject(NgZone);
+  protected readonly accountService = inject(AccountService);
 
   trackId = (item: IReserva): number => this.reservaService.getReservaIdentifier(item);
 
@@ -61,6 +65,21 @@ export class ReservaComponent implements OnInit {
       .subscribe();
 
     this.filters.filterChanges.subscribe(filterOptions => this.handleNavigation(1, this.sortState(), filterOptions));
+  }
+
+  get esAdmin(): boolean {
+    return this.accountService.hasAnyAuthority(Authority.ADMIN);
+  }
+
+  puedeCancelar(reserva: IReserva): boolean {
+    return puedeCancelar(reserva, this.esAdmin);
+  }
+
+  cancelar(reserva: IReserva): void {
+    if (!window.confirm('¿Cancelar la reserva? Esta acción no se puede deshacer.')) {
+      return;
+    }
+    this.reservaService.cancelar(reserva.id).subscribe({ next: () => this.load() });
   }
 
   delete(reserva: IReserva): void {

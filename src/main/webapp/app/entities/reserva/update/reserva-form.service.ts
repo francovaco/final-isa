@@ -3,7 +3,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import dayjs from 'dayjs/esm';
 import { DATE_TIME_FORMAT } from 'app/config/input.constants';
+import { EstadoReserva } from 'app/entities/enumerations/estado-reserva.model';
 import { IReserva, NewReserva } from '../reserva.model';
+import { duracionPermitidaValidator, fechaFuturaValidator } from '../reserva-reglas';
 
 /**
  * A partial Type with required key is used as form input.
@@ -28,7 +30,7 @@ type ReservaFormRawValue = FormValueOf<IReserva>;
 
 type NewReservaFormRawValue = FormValueOf<NewReserva>;
 
-type ReservaFormDefaults = Pick<NewReserva, 'id' | 'inicio' | 'creadaEn'>;
+type ReservaFormDefaults = Pick<NewReserva, 'id' | 'inicio' | 'creadaEn' | 'duracionMinutos' | 'estado'>;
 
 type ReservaFormGroupContent = {
   id: FormControl<ReservaFormRawValue['id'] | NewReserva['id']>;
@@ -50,6 +52,7 @@ export class ReservaFormService {
       ...this.getFormDefaults(),
       ...reserva,
     });
+    const esNueva = reservaRawValue.id === null;
     return new FormGroup<ReservaFormGroupContent>({
       id: new FormControl(
         { value: reservaRawValue.id, disabled: true },
@@ -59,10 +62,11 @@ export class ReservaFormService {
         },
       ),
       inicio: new FormControl(reservaRawValue.inicio, {
-        validators: [Validators.required],
+        // Solo al crear: una reserva ya existente (que edita el admin) puede estar en el pasado
+        validators: esNueva ? [Validators.required, fechaFuturaValidator()] : [Validators.required],
       }),
       duracionMinutos: new FormControl(reservaRawValue.duracionMinutos, {
-        validators: [Validators.required, Validators.min(60), Validators.max(120)],
+        validators: [Validators.required, duracionPermitidaValidator],
       }),
       estado: new FormControl(reservaRawValue.estado, {
         validators: [Validators.required],
@@ -97,8 +101,11 @@ export class ReservaFormService {
 
     return {
       id: null,
-      inicio: currentTime,
+      // Por defecto: mañana a las 10:00, un turno valido
+      inicio: currentTime.add(1, 'day').hour(10).minute(0).second(0).millisecond(0),
       creadaEn: currentTime,
+      duracionMinutos: 60,
+      estado: EstadoReserva.CONFIRMADA,
     };
   }
 

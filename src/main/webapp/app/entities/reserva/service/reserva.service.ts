@@ -53,6 +53,13 @@ export class ReservaService {
       .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
+  /** Cancela la reserva (POST /api/reservas/:id/cancelar). */
+  cancelar(id: number): Observable<EntityResponseType> {
+    return this.http
+      .post<RestReserva>(`${this.resourceUrl}/${id}/cancelar`, null, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
+  }
+
   find(id: number): Observable<EntityResponseType> {
     return this.http
       .get<RestReserva>(`${this.resourceUrl}/${id}`, { observe: 'response' })

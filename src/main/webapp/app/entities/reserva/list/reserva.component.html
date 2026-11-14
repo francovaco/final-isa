@@ -1,6 +1,6 @@
 <div>
   <h2 id="page-heading" data-cy="ReservaHeading">
-    <span>Reservas</span>
+    <span>{{ esAdmin ? 'Reservas' : 'Mis reservas' }}</span>
 
     <div class="d-flex justify-content-end">
       <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
@@ -15,7 +15,7 @@
         [routerLink]="['/reserva/new']"
       >
         <fa-icon icon="plus"></fa-icon>
-        <span>Crear nuevo Reserva</span>
+        <span>Nueva reserva</span>
       </button>
     </div>
   </h2>
@@ -122,15 +122,24 @@
                     <span class="d-none d-md-inline">Vista</span>
                   </a>
 
-                  <a [routerLink]="['/reserva', reserva.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
-                    <fa-icon icon="pencil-alt"></fa-icon>
-                    <span class="d-none d-md-inline">Editar</span>
-                  </a>
+                  @if (puedeCancelar(reserva)) {
+                    <button type="button" (click)="cancelar(reserva)" class="btn btn-warning btn-sm" data-cy="entityCancelarButton">
+                      <fa-icon icon="ban"></fa-icon>
+                      <span class="d-none d-md-inline">Cancelar</span>
+                    </button>
+                  }
 
-                  <button type="submit" (click)="delete(reserva)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
-                    <fa-icon icon="times"></fa-icon>
-                    <span class="d-none d-md-inline">Eliminar</span>
-                  </button>
+                  @if (esAdmin) {
+                    <a [routerLink]="['/reserva', reserva.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                      <fa-icon icon="pencil-alt"></fa-icon>
+                      <span class="d-none d-md-inline">Editar</span>
+                    </a>
+
+                    <button type="submit" (click)="delete(reserva)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                      <fa-icon icon="times"></fa-icon>
+                      <span class="d-none d-md-inline">Eliminar</span>
+                    </button>
+                  }
                 </div>
               </td>
             </tr>
