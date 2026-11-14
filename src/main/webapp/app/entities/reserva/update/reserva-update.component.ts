@@ -10,6 +10,7 @@ import SharedModule from 'app/shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AccountService } from 'app/core/auth/account.service';
+import { PwaService } from 'app/core/pwa/pwa.service';
 import { Authority } from 'app/config/authority.constants';
 import { ClimaService, PronosticoDia } from 'app/shared/clima/clima.service';
 import { ICancha } from 'app/entities/cancha/cancha.model';
@@ -45,6 +46,7 @@ export class ReservaUpdateComponent implements OnInit {
   protected userService = inject(UserService);
   protected accountService = inject(AccountService);
   protected climaService = inject(ClimaService);
+  protected pwaService = inject(PwaService);
   protected activatedRoute = inject(ActivatedRoute);
   protected destroyRef = inject(DestroyRef);
 

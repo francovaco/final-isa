@@ -123,7 +123,13 @@
                   </a>
 
                   @if (puedeCancelar(reserva)) {
-                    <button type="button" (click)="cancelar(reserva)" class="btn btn-warning btn-sm" data-cy="entityCancelarButton">
+                    <button
+                      type="button"
+                      (click)="cancelar(reserva)"
+                      [disabled]="!pwaService.online()"
+                      class="btn btn-warning btn-sm"
+                      data-cy="entityCancelarButton"
+                    >
                       <fa-icon icon="ban"></fa-icon>
                       <span class="d-none d-md-inline">Cancelar</span>
                     </button>

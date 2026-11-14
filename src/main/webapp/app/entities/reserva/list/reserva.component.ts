@@ -13,6 +13,7 @@ import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/co
 import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
 import { FilterComponent, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { AccountService } from 'app/core/auth/account.service';
+import { PwaService } from 'app/core/pwa/pwa.service';
 import { Authority } from 'app/config/authority.constants';
 import { IReserva } from '../reserva.model';
 import { puedeCancelar } from '../reserva-reglas';
@@ -53,6 +54,7 @@ export class ReservaComponent implements OnInit {
   protected modalService = inject(NgbModal);
   protected ngZone = inject(NgZone);
   protected readonly accountService = inject(AccountService);
+  protected readonly pwaService = inject(PwaService);
 
   trackId = (item: IReserva): number => this.reservaService.getReservaIdentifier(item);
 
