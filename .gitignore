@@ -152,3 +152,6 @@ Desktop.ini
 coverage/
 .nyc_output/
 .h2.server.properties
+
+# Variables de entorno locales (contraseñas): no se versionan
+.env

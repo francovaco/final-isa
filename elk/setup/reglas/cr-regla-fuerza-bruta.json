@@ -1,0 +1,62 @@
+{
+  "name": "ClubReservas - Posible fuerza bruta en el login",
+  "tags": ["clubreservas", "seguridad"],
+  "params": {
+    "searchType": "esQuery",
+    "index": ["logstash-clubreservas-*"],
+    "timeField": "@timestamp",
+    "esQuery": "{\"query\": {\"term\": {\"evento\": \"LOGIN_FALLIDO\"}}}",
+    "size": 10,
+    "thresholdComparator": ">",
+    "threshold": [5],
+    "timeWindowSize": 1,
+    "timeWindowUnit": "m",
+    "excludeHitsFromPreviousRun": false,
+    "aggType": "count",
+    "groupBy": "top",
+    "termField": "usuario",
+    "termSize": 10
+  },
+  "actions": [
+    {
+      "group": "query matched",
+      "id": "cr-server-log",
+      "frequency": {
+        "summary": false,
+        "notify_when": "onActionGroupChange",
+        "throttle": null
+      },
+      "params": {
+        "level": "warning",
+        "message": "Más de 5 logins fallidos en 1 minuto para el mismo usuario | valor: {{context.value}} | {{context.conditions}}"
+      }
+    },
+    {
+      "group": "query matched",
+      "id": "cr-indice-alertas",
+      "frequency": {
+        "summary": false,
+        "notify_when": "onActionGroupChange",
+        "throttle": null
+      },
+      "params": {
+        "documents": [
+          {
+            "@timestamp": "{{date}}",
+            "regla": "{{rule.name}}",
+            "severidad": "warning",
+            "grupo": "{{alert.id}}",
+            "valor": "{{context.value}}",
+            "mensaje": "Más de 5 logins fallidos en 1 minuto para el mismo usuario"
+          }
+        ]
+      }
+    }
+  ],
+  "rule_type_id": ".es-query",
+  "consumer": "stackAlerts",
+  "schedule": {
+    "interval": "1m"
+  },
+  "enabled": true
+}

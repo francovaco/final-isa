@@ -1,0 +1,27 @@
+{
+  "index_patterns": ["logstash-clubreservas-*"],
+  "priority": 200,
+  "template": {
+    "settings": { "number_of_shards": 1, "number_of_replicas": 0 },
+    "mappings": {
+      "dynamic_templates": [
+        { "textos_como_keyword": { "match_mapping_type": "string", "mapping": { "type": "keyword", "ignore_above": 1024 } } }
+      ],
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "message": { "type": "text" },
+        "stack_trace": { "type": "text" },
+        "level": { "type": "keyword" },
+        "logger_name": { "type": "keyword" },
+        "evento": { "type": "keyword" },
+        "usuario": { "type": "keyword" },
+        "motivo": { "type": "keyword" },
+        "cancha": { "type": "keyword" },
+        "ruta": { "type": "keyword" },
+        "metodo": { "type": "keyword" },
+        "status": { "type": "integer" },
+        "duracion_ms": { "type": "long" }
+      }
+    }
+  }
+}

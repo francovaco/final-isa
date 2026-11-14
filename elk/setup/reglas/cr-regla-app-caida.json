@@ -1,0 +1,60 @@
+{
+  "name": "ClubReservas - La app no envía logs",
+  "tags": ["clubreservas", "disponibilidad"],
+  "params": {
+    "searchType": "esQuery",
+    "index": ["logstash-clubreservas-*"],
+    "timeField": "@timestamp",
+    "esQuery": "{\"query\": {\"term\": {\"evento\": \"LATIDO\"}}}",
+    "size": 1,
+    "thresholdComparator": "<",
+    "threshold": [1],
+    "timeWindowSize": 3,
+    "timeWindowUnit": "m",
+    "excludeHitsFromPreviousRun": false,
+    "aggType": "count",
+    "groupBy": "all"
+  },
+  "actions": [
+    {
+      "group": "query matched",
+      "id": "cr-server-log",
+      "frequency": {
+        "summary": false,
+        "notify_when": "onActionGroupChange",
+        "throttle": null
+      },
+      "params": {
+        "level": "error",
+        "message": "La app no envió su latido en los últimos 3 minutos: puede estar caída | valor: {{context.value}} | {{context.conditions}}"
+      }
+    },
+    {
+      "group": "query matched",
+      "id": "cr-indice-alertas",
+      "frequency": {
+        "summary": false,
+        "notify_when": "onActionGroupChange",
+        "throttle": null
+      },
+      "params": {
+        "documents": [
+          {
+            "@timestamp": "{{date}}",
+            "regla": "{{rule.name}}",
+            "severidad": "error",
+            "grupo": "{{alert.id}}",
+            "valor": "{{context.value}}",
+            "mensaje": "La app no envió su latido en los últimos 3 minutos: puede estar caída"
+          }
+        ]
+      }
+    }
+  ],
+  "rule_type_id": ".es-query",
+  "consumer": "stackAlerts",
+  "schedule": {
+    "interval": "1m"
+  },
+  "enabled": true
+}

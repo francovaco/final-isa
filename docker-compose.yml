@@ -1,0 +1,119 @@
+# ClubReservas: entorno completo con un solo comando.
+#
+#   cp .env.example .env      (la primera vez; cambiar las contraseñas)
+#   docker compose up -d
+#
+# Servicios:
+#   - elasticsearch, logstash, kibana: stack ELK para los logs de la app
+#   - elk-setup / kibana-setup: contenedores de una sola vez que dejan ELK configurado
+#     (usuarios, plantilla de índice, data views, dashboard y alertas)
+#   (Fase 6: se agregan la app y PostgreSQL)
+#
+# Puertos publicados solo en 127.0.0.1 (no quedan expuestos a la red).
+name: clubreservas
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.5.4
+    environment:
+      node.name: elasticsearch
+      discovery.type: single-node
+      xpack.security.enabled: 'true'
+      xpack.license.self_generated.type: basic
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:?Definir ELASTIC_PASSWORD en .env}
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 127.0.0.1:9200:9200
+    mem_limit: 1g
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      # Sin credenciales: un 401 indica que Elasticsearch ya responde (elk-setup espera el estado del cluster)
+      test: ['CMD-SHELL', 'curl -s -o /dev/null -w "%{http_code}" http://localhost:9200 | grep -q 401']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  elk-setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.5.4
+    command: ['bash', '/setup/setup-elasticsearch.sh']
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:?Definir KIBANA_SYSTEM_PASSWORD en .env}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:?Definir LOGSTASH_INTERNAL_PASSWORD en .env}
+    volumes:
+      - ./elk/setup:/setup:ro
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: 'no'
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.5.4
+    environment:
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD}
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
+    volumes:
+      - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      # En macOS el puerto 5000 lo usa AirPlay: desde el host se entra por el 5001
+      - 127.0.0.1:5001:5000
+    mem_limit: 768m
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -s http://localhost:9600/_node/pipelines | grep -q main']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    depends_on:
+      elk-setup:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.5.4
+    environment:
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD}
+      KIBANA_ENCRYPTION_KEY: ${KIBANA_ENCRYPTION_KEY:?Definir KIBANA_ENCRYPTION_KEY en .env (32 caracteres o más)}
+      NODE_OPTIONS: --max-old-space-size=800
+    volumes:
+      - ./elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    ports:
+      - 127.0.0.1:5601:5601
+    mem_limit: 1200m
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5601/login | grep -q 200']
+      interval: 10s
+      timeout: 5s
+      retries: 60
+    depends_on:
+      elk-setup:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  kibana-setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.5.4
+    command: ['bash', '/setup/setup-kibana.sh']
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    volumes:
+      - ./elk/setup:/setup:ro
+      - ./elk/kibana/objetos:/objetos:ro
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      kibana:
+        condition: service_healthy
+    restart: 'no'
+
+volumes:
+  elasticsearch-data:
