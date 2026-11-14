@@ -8,7 +8,7 @@ target/
 
 # Usuarios de ejemplo de JHipster (admin/admin, user/user) que Liquibase carga para
 # desarrollo, la demo y los tests E2E. Son hashes bcrypt de contraseñas públicas
-# conocidas, no secretos. Pendiente para producción: cambiar esas contraseñas.
+# conocidas, no secretos. Se mantienen con sus contraseñas por defecto (decisión del equipo).
 src/main/resources/config/liquibase/data/user.csv
 
 # Codigo de test (Semgrep tambien excluye los tests por defecto):
