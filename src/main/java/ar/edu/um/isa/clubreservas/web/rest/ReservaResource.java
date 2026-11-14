@@ -1,6 +1,11 @@
 package ar.edu.um.isa.clubreservas.web.rest;
 
+import ar.edu.um.isa.clubreservas.domain.User;
 import ar.edu.um.isa.clubreservas.repository.ReservaRepository;
+import ar.edu.um.isa.clubreservas.repository.UserRepository;
+import ar.edu.um.isa.clubreservas.security.AuthoritiesConstants;
+import ar.edu.um.isa.clubreservas.security.SecurityUtils;
+import ar.edu.um.isa.clubreservas.service.ReglaReservaException;
 import ar.edu.um.isa.clubreservas.service.ReservaQueryService;
 import ar.edu.um.isa.clubreservas.service.ReservaService;
 import ar.edu.um.isa.clubreservas.service.criteria.ReservaCriteria;
@@ -20,8 +25,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -46,10 +53,18 @@ public class ReservaResource {
 
     private final ReservaQueryService reservaQueryService;
 
-    public ReservaResource(ReservaService reservaService, ReservaRepository reservaRepository, ReservaQueryService reservaQueryService) {
+    private final UserRepository userRepository;
+
+    public ReservaResource(
+        ReservaService reservaService,
+        ReservaRepository reservaRepository,
+        ReservaQueryService reservaQueryService,
+        UserRepository userRepository
+    ) {
         this.reservaService = reservaService;
         this.reservaRepository = reservaRepository;
         this.reservaQueryService = reservaQueryService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -65,7 +80,11 @@ public class ReservaResource {
         if (reservaDTO.getId() != null) {
             throw new BadRequestAlertException("A new reserva cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        reservaDTO = reservaService.save(reservaDTO);
+        try {
+            reservaDTO = reservaService.save(reservaDTO);
+        } catch (ReglaReservaException e) {
+            throw errorDeRegla(e);
+        }
         return ResponseEntity.created(new URI("/api/reservas/" + reservaDTO.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, reservaDTO.getId().toString()))
             .body(reservaDTO);
@@ -82,6 +101,7 @@ public class ReservaResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ReservaDTO> updateReserva(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody ReservaDTO reservaDTO
@@ -116,6 +136,7 @@ public class ReservaResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ReservaDTO> partialUpdateReserva(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody ReservaDTO reservaDTO
@@ -153,6 +174,7 @@ public class ReservaResource {
         @org.springdoc.core.annotations.ParameterObject Pageable pageable
     ) {
         LOG.debug("REST request to get Reservas by criteria: {}", criteria);
+        restringirAlUsuarioActual(criteria);
 
         Page<ReservaDTO> page = reservaQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -168,6 +190,7 @@ public class ReservaResource {
     @GetMapping("/count")
     public ResponseEntity<Long> countReservas(ReservaCriteria criteria) {
         LOG.debug("REST request to count Reservas by criteria: {}", criteria);
+        restringirAlUsuarioActual(criteria);
         return ResponseEntity.ok().body(reservaQueryService.countByCriteria(criteria));
     }
 
@@ -185,12 +208,58 @@ public class ReservaResource {
     }
 
     /**
+     * {@code POST  /reservas/:id/cancelar} : cancela la reserva "id".
+     * El socio puede cancelar sus reservas con 2 horas de anticipación; el admin, cualquiera.
+     *
+     * @param id el id de la reserva a cancelar.
+     * @return {@code 200 (OK)} con la reserva cancelada, {@code 400 (Bad Request)} si no se puede cancelar,
+     * o {@code 404 (Not Found)} si no existe o no es del usuario.
+     */
+    @PostMapping("/{id}/cancelar")
+    public ResponseEntity<ReservaDTO> cancelarReserva(@PathVariable("id") Long id) {
+        LOG.debug("REST request to cancel Reserva : {}", id);
+        try {
+            return ResponseUtil.wrapOrNotFound(
+                reservaService.cancelar(id),
+                HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, id.toString())
+            );
+        } catch (ReglaReservaException e) {
+            throw errorDeRegla(e);
+        }
+    }
+
+    /**
+     * Convierte una regla de negocio incumplida en un 400. El motivo (texto para el usuario)
+     * va en "detail" y el código de la regla en "message" (error.&lt;codigo&gt;).
+     */
+    private static BadRequestAlertException errorDeRegla(ReglaReservaException e) {
+        BadRequestAlertException error = new BadRequestAlertException(e.getMessage(), ENTITY_NAME, e.getCodigo());
+        error.getBody().setDetail(e.getMessage());
+        return error;
+    }
+
+    /**
+     * Un socio solo puede listar sus propias reservas: se fuerza el filtro por su usuario.
+     * El administrador ve todas.
+     */
+    private void restringirAlUsuarioActual(ReservaCriteria criteria) {
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            return;
+        }
+        Long usuarioId = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).map(User::getId).orElse(-1L);
+        LongFilter filtro = new LongFilter();
+        filtro.setEquals(usuarioId);
+        criteria.setUsuarioId(filtro);
+    }
+
+    /**
      * {@code DELETE  /reservas/:id} : delete the "id" reserva.
      *
      * @param id the id of the reservaDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteReserva(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Reserva : {}", id);
         reservaService.delete(id);
