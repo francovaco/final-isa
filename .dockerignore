@@ -1,0 +1,18 @@
+# Lo que no entra al contexto de build de la imagen
+.git
+.github
+.devcontainer
+.husky
+.angular
+.idea
+.vscode
+node_modules
+target
+elk
+.env
+.env.*
+*.md
+docker-compose.yml
+Dockerfile
+**/.DS_Store
+src/test
