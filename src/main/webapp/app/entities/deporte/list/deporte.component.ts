@@ -4,6 +4,7 @@ import { Observable, Subscription, combineLatest, filter, tap } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import SharedModule from 'app/shared/shared.module';
+import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { FormsModule } from '@angular/forms';
 import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
@@ -14,7 +15,7 @@ import { DeporteDeleteDialogComponent } from '../delete/deporte-delete-dialog.co
 @Component({
   selector: 'jhi-deporte',
   templateUrl: './deporte.component.html',
-  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective],
+  imports: [RouterModule, FormsModule, SharedModule, HasAnyAuthorityDirective, SortDirective, SortByDirective],
 })
 export class DeporteComponent implements OnInit {
   subscription: Subscription | null = null;

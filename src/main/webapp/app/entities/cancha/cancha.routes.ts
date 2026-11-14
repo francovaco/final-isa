@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { Authority } from 'app/config/authority.constants';
 import { ASC } from 'app/config/navigation.constants';
 import CanchaResolve from './route/cancha-routing-resolve.service';
 
@@ -27,6 +28,7 @@ const canchaRoute: Routes = [
     resolve: {
       cancha: CanchaResolve,
     },
+    data: { authorities: [Authority.ADMIN] },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -35,6 +37,7 @@ const canchaRoute: Routes = [
     resolve: {
       cancha: CanchaResolve,
     },
+    data: { authorities: [Authority.ADMIN] },
     canActivate: [UserRouteAccessService],
   },
 ];

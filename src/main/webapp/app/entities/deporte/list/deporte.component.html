@@ -9,6 +9,7 @@
       </button>
 
       <button
+        *jhiHasAnyAuthority="'ROLE_ADMIN'"
         id="jh-create-entity"
         data-cy="entityCreateButton"
         class="btn btn-primary jh-create-entity create-deporte"
@@ -80,12 +81,23 @@
                     <span class="d-none d-md-inline">Vista</span>
                   </a>
 
-                  <a [routerLink]="['/deporte', deporte.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                  <a
+                    *jhiHasAnyAuthority="'ROLE_ADMIN'"
+                    [routerLink]="['/deporte', deporte.id, 'edit']"
+                    class="btn btn-primary btn-sm"
+                    data-cy="entityEditButton"
+                  >
                     <fa-icon icon="pencil-alt"></fa-icon>
                     <span class="d-none d-md-inline">Editar</span>
                   </a>
 
-                  <button type="submit" (click)="delete(deporte)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                  <button
+                    *jhiHasAnyAuthority="'ROLE_ADMIN'"
+                    type="submit"
+                    (click)="delete(deporte)"
+                    class="btn btn-danger btn-sm"
+                    data-cy="entityDeleteButton"
+                  >
                     <fa-icon icon="times"></fa-icon>
                     <span class="d-none d-md-inline">Eliminar</span>
                   </button>

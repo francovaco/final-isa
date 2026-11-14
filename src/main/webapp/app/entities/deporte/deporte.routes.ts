@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { Authority } from 'app/config/authority.constants';
 import { ASC } from 'app/config/navigation.constants';
 import DeporteResolve from './route/deporte-routing-resolve.service';
 
@@ -27,6 +28,7 @@ const deporteRoute: Routes = [
     resolve: {
       deporte: DeporteResolve,
     },
+    data: { authorities: [Authority.ADMIN] },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -35,6 +37,7 @@ const deporteRoute: Routes = [
     resolve: {
       deporte: DeporteResolve,
     },
+    data: { authorities: [Authority.ADMIN] },
     canActivate: [UserRouteAccessService],
   },
 ];
