@@ -1,0 +1,9 @@
+# Excepciones de Trivy para ClubReservas.
+# Cada una fue revisada: la vulnerabilidad existe en la libreria, pero la app no usa la funcion afectada.
+# La correccion solo esta en Spring Framework 7 (Spring Boot 4), fuera de la linea de JHipster 8.11.
+
+# spring-webmvc: RCE/SSRF via XsltView. La app no usa XsltView (ni vistas XSLT): es una API REST + SPA.
+CVE-2026-47884
+
+# spring-webmvc: corrupcion de stream en Server-Sent Events con view fragments. La app no usa SSE ni fragments.
+CVE-2026-47890
