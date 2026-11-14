@@ -62,7 +62,7 @@ echo "== Canchas activas usadas: $CANCHAS"
 
 echo "== Reservas válidas y rechazadas"
 DIA=$(((RANDOM % 10) + 2))
-HORA=$(((RANDOM % 6) + 9))
+HORA=$(printf "%02d" $(((RANDOM % 6) + 9))) # con cero adelante: 09, 10, ...
 for C in $CANCHAS; do
   echo "admin, válida (cancha $C):  $(reservar "$ADMIN" "$C" "$(fecha $DIA)" "$HORA:00" 60)"
   echo "socio, superpuesta:        $(reservar "$SOCIO" "$C" "$(fecha $DIA)" "$HORA:30" 60)"
