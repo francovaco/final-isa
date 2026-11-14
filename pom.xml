@@ -25,6 +25,7 @@
         <maven.version>3.2.5</maven.version>
         <!-- Versiones fijadas por seguridad (Trivy): parches dentro de la misma linea que Spring Boot 3.5 -->
         <jackson-bom.version>2.21.8</jackson-bom.version>
+        <logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
         <undertow.version>2.3.27.Final</undertow.version>
         <postgresql.version>42.7.14</postgresql.version>
         <java.version>17</java.version>
@@ -85,6 +86,12 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <!-- Envia los logs a Logstash (ELK) y permite logs con campos estructurados (StructuredArguments) -->
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
+        </dependency>
         <dependency>
             <groupId>tech.jhipster</groupId>
             <artifactId>jhipster-framework</artifactId>
