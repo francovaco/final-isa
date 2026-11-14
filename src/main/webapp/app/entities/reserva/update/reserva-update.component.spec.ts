@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpResponse, provideHttpClient } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -8,6 +8,8 @@ import { ICancha } from 'app/entities/cancha/cancha.model';
 import { CanchaService } from 'app/entities/cancha/service/cancha.service';
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/service/user.service';
+import { AccountService } from 'app/core/auth/account.service';
+import { ClimaService, PronosticoDia } from 'app/shared/clima/clima.service';
 import { IReserva } from '../reserva.model';
 import { ReservaService } from '../service/reserva.service';
 import { ReservaFormService } from './reserva-form.service';
@@ -22,6 +24,8 @@ describe('Reserva Management Update Component', () => {
   let reservaService: ReservaService;
   let canchaService: CanchaService;
   let userService: UserService;
+  let accountService: AccountService;
+  let climaService: ClimaService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -46,6 +50,11 @@ describe('Reserva Management Update Component', () => {
     reservaService = TestBed.inject(ReservaService);
     canchaService = TestBed.inject(CanchaService);
     userService = TestBed.inject(UserService);
+    accountService = TestBed.inject(AccountService);
+    climaService = TestBed.inject(ClimaService);
+    // Por defecto: usuario admin y sin pronóstico (no se llama a la API real)
+    jest.spyOn(accountService, 'hasAnyAuthority').mockReturnValue(true);
+    jest.spyOn(climaService, 'pronosticoDelDia').mockReturnValue(of(null));
 
     comp = fixture.componentInstance;
   });
@@ -56,7 +65,7 @@ describe('Reserva Management Update Component', () => {
       const cancha: ICancha = { id: 16283 };
       reserva.cancha = cancha;
 
-      const canchaCollection: ICancha[] = [{ id: 16283 }];
+      const canchaCollection: ICancha[] = [{ id: 16283, activa: true }];
       jest.spyOn(canchaService, 'query').mockReturnValue(of(new HttpResponse({ body: canchaCollection })));
       const additionalCanchas = [cancha];
       const expectedCollection: ICancha[] = [...additionalCanchas, ...canchaCollection];
@@ -94,6 +103,56 @@ describe('Reserva Management Update Component', () => {
       );
       expect(comp.usersSharedCollection).toEqual(expectedCollection);
     });
+
+    it('no ofrece canchas inactivas', () => {
+      jest.spyOn(canchaService, 'query').mockReturnValue(
+        of(
+          new HttpResponse({
+            body: [
+              { id: 1, activa: true },
+              { id: 2, activa: false },
+              { id: 3, activa: true },
+            ],
+          }),
+        ),
+      );
+
+      activatedRoute.data = of({ reserva: null });
+      comp.ngOnInit();
+
+      expect(comp.canchasSharedCollection.map(c => c.id)).toEqual([1, 3]);
+    });
+
+    it('un socio no carga la lista de usuarios', () => {
+      jest.spyOn(accountService, 'hasAnyAuthority').mockReturnValue(false);
+      jest.spyOn(userService, 'query');
+
+      activatedRoute.data = of({ reserva: null });
+      comp.ngOnInit();
+
+      expect(userService.query).not.toHaveBeenCalled();
+    });
+
+    it('muestra el pronóstico del día elegido', fakeAsync(() => {
+      const pronostico: PronosticoDia = {
+        fecha: '2026-12-01',
+        descripcion: 'Despejado',
+        temperaturaMax: 31,
+        temperaturaMin: 18,
+        probabilidadLluvia: 5,
+      };
+      jest.spyOn(climaService, 'pronosticoDelDia').mockReturnValue(of(pronostico));
+      jest.spyOn(accountService, 'hasAnyAuthority').mockReturnValue(false);
+      jest.spyOn(canchaService, 'query').mockReturnValue(of(new HttpResponse({ body: [] })));
+
+      activatedRoute.data = of({ reserva: null });
+      comp.ngOnInit();
+      comp.editForm.controls.inicio.setValue('2026-12-01T10:00');
+      tick(300);
+
+      expect(climaService.pronosticoDelDia).toHaveBeenLastCalledWith('2026-12-01');
+      expect(comp.pronostico()).toEqual(pronostico);
+    }));
 
     it('should update editForm', () => {
       const reserva: IReserva = { id: 8835 };

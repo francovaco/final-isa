@@ -4,6 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
+import dayjs from 'dayjs/esm';
+
+import { AccountService } from 'app/core/auth/account.service';
 import { sampleWithRequiredData } from '../reserva.test-samples';
 import { ReservaService } from '../service/reserva.service';
 
@@ -183,5 +186,40 @@ describe('Reserva Management Component', () => {
         expect(comp.load).not.toHaveBeenCalled();
       }),
     ));
+  });
+  describe('cancelar', () => {
+    const reservaFutura = { id: 77, estado: 'CONFIRMADA' as const, inicio: dayjs().add(3, 'day') };
+
+    it('pide confirmación y, si el usuario acepta, cancela y recarga la lista', () => {
+      jest.spyOn(window, 'confirm').mockReturnValue(true);
+      jest.spyOn(service, 'cancelar').mockReturnValue(of(new HttpResponse({ body: { ...reservaFutura, estado: 'CANCELADA' as const } })));
+      jest.spyOn(comp, 'load').mockImplementation(() => undefined);
+
+      comp.cancelar(reservaFutura);
+
+      expect(service.cancelar).toHaveBeenCalledWith(77);
+      expect(comp.load).toHaveBeenCalled();
+    });
+
+    it('no cancela si el usuario no confirma', () => {
+      jest.spyOn(window, 'confirm').mockReturnValue(false);
+      jest.spyOn(service, 'cancelar');
+
+      comp.cancelar(reservaFutura);
+
+      expect(service.cancelar).not.toHaveBeenCalled();
+    });
+
+    it('muestra el botón Cancelar según el rol y la anticipación', () => {
+      const accountService = TestBed.inject(AccountService);
+      const reservaEnUnaHora = { id: 78, estado: 'CONFIRMADA' as const, inicio: dayjs().add(1, 'hour') };
+
+      jest.spyOn(accountService, 'hasAnyAuthority').mockReturnValue(false);
+      expect(comp.puedeCancelar(reservaFutura)).toBe(true);
+      expect(comp.puedeCancelar(reservaEnUnaHora)).toBe(false);
+
+      jest.spyOn(accountService, 'hasAnyAuthority').mockReturnValue(true);
+      expect(comp.puedeCancelar(reservaEnUnaHora)).toBe(true);
+    });
   });
 });
