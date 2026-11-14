@@ -1,0 +1,60 @@
+{
+  "name": "ClubReservas - Muchos errores",
+  "tags": ["clubreservas"],
+  "params": {
+    "searchType": "esQuery",
+    "index": ["logstash-clubreservas-*"],
+    "timeField": "@timestamp",
+    "esQuery": "{\"query\": {\"term\": {\"level\": \"ERROR\"}}}",
+    "size": 10,
+    "thresholdComparator": ">",
+    "threshold": [5],
+    "timeWindowSize": 5,
+    "timeWindowUnit": "m",
+    "excludeHitsFromPreviousRun": false,
+    "aggType": "count",
+    "groupBy": "all"
+  },
+  "actions": [
+    {
+      "group": "query matched",
+      "id": "cr-server-log",
+      "frequency": {
+        "summary": false,
+        "notify_when": "onActionGroupChange",
+        "throttle": null
+      },
+      "params": {
+        "level": "error",
+        "message": "Más de 5 errores en los últimos 5 minutos | valor: {{context.value}} | {{context.conditions}}"
+      }
+    },
+    {
+      "group": "query matched",
+      "id": "cr-indice-alertas",
+      "frequency": {
+        "summary": false,
+        "notify_when": "onActionGroupChange",
+        "throttle": null
+      },
+      "params": {
+        "documents": [
+          {
+            "@timestamp": "{{date}}",
+            "regla": "{{rule.name}}",
+            "severidad": "error",
+            "grupo": "{{alert.id}}",
+            "valor": "{{context.value}}",
+            "mensaje": "Más de 5 errores en los últimos 5 minutos"
+          }
+        ]
+      }
+    }
+  ],
+  "rule_type_id": ".es-query",
+  "consumer": "stackAlerts",
+  "schedule": {
+    "interval": "1m"
+  },
+  "enabled": true
+}

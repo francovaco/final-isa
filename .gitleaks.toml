@@ -14,4 +14,6 @@ paths = [
   '''^src/main/resources/config/application-dev\.yml$''',
   '''^src/test/resources/config/application\.yml$''',
   '''^src/test/java/ar/edu/um/isa/clubreservas/security/jwt/AuthenticationIntegrationTest\.java$''',
+  # Plantilla de variables de entorno: solo valores de ejemplo para reemplazar (el .env real no se versiona)
+  '''^\.env\.example$''',
 ]
