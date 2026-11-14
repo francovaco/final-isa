@@ -1,0 +1,22 @@
+{
+  "generator-jhipster": {
+    "applicationType": "monolith",
+    "authenticationType": "jwt",
+    "baseName": "clubReservas",
+    "buildTool": "maven",
+    "cacheProvider": "ehcache",
+    "clientFramework": "angular",
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "enableHibernateCache": true,
+    "enableTranslation": false,
+    "entities": ["Deporte", "Cancha", "Reserva"],
+    "jhipsterVersion": "8.11.0",
+    "jwtSecretKey": "NTA3NDQ2NzdhMmM0MzllYTA4NTdjZTJkZmI4MzQ2MTE0ZTk4NzUwZDM2MjQxZTQ4ZDdkODIyZGIxYWExZmU4YmRjOTMwYjRhNzBiODg4YWIyNWIxYmFkZjI4ODZkNTAwZjcxNTIxOTE3MzJiYmI4OWZhZTc4ZDcyMGEyZDgwMGU=",
+    "lastLiquibaseTimestamp": 1794684105000,
+    "nativeLanguage": "es",
+    "packageName": "ar.edu.um.isa.clubreservas",
+    "prodDatabaseType": "postgresql",
+    "testFrameworks": []
+  }
+}

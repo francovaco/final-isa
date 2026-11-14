@@ -1,0 +1,64 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (reserva(); as reservaRef) {
+      <div>
+        <h2 data-cy="reservaDetailsHeading"><span>Reserva</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>ID</span></dt>
+          <dd>
+            <span>{{ reservaRef.id }}</span>
+          </dd>
+          <dt><span>Inicio</span></dt>
+          <dd>
+            <span>{{ reservaRef.inicio | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span>Duracion Minutos</span></dt>
+          <dd>
+            <span>{{ reservaRef.duracionMinutos }}</span>
+          </dd>
+          <dt><span>Estado</span></dt>
+          <dd>
+            <span>{{
+              { null: '', CONFIRMADA: 'CONFIRMADA', CANCELADA: 'CANCELADA', FINALIZADA: 'FINALIZADA' }[reservaRef.estado ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span>Observaciones</span></dt>
+          <dd>
+            <span>{{ reservaRef.observaciones }}</span>
+          </dd>
+          <dt><span>Creada En</span></dt>
+          <dd>
+            <span>{{ reservaRef.creadaEn | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span>Cancha</span></dt>
+          <dd>
+            @if (reserva()!.cancha) {
+              <div>
+                <a [routerLink]="['/cancha', reserva()!.cancha?.id, 'view']">{{ reservaRef.cancha?.nombre }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span>Usuario</span></dt>
+          <dd>
+            <span>{{ reservaRef.usuario?.login }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/reserva', reservaRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

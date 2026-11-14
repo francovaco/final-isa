@@ -1,0 +1,96 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-deporte-heading" data-cy="DeporteCreateUpdateHeading">Crear o editar Deporte</h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let nombreRef = editForm.get('nombre')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_nombre">Nombre</label>
+          <input type="text" class="form-control" name="nombre" id="field_nombre" data-cy="nombre" formControlName="nombre" />
+          @if (nombreRef.invalid && (nombreRef.dirty || nombreRef.touched)) {
+            <div>
+              @if (editForm.get('nombre')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+              @if (editForm.get('nombre')?.errors?.maxlength) {
+                <small class="form-text text-danger">Este campo no puede superar más de 40 caracteres.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let descripcionRef = editForm.get('descripcion')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_descripcion">Descripcion</label>
+          <input
+            type="text"
+            class="form-control"
+            name="descripcion"
+            id="field_descripcion"
+            data-cy="descripcion"
+            formControlName="descripcion"
+          />
+          @if (descripcionRef.invalid && (descripcionRef.dirty || descripcionRef.touched)) {
+            <div>
+              @if (editForm.get('descripcion')?.errors?.maxlength) {
+                <small class="form-text text-danger">Este campo no puede superar más de 255 caracteres.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let jugadoresPorEquipoRef = editForm.get('jugadoresPorEquipo')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_jugadoresPorEquipo">Jugadores Por Equipo</label>
+          <input
+            type="number"
+            class="form-control"
+            name="jugadoresPorEquipo"
+            id="field_jugadoresPorEquipo"
+            data-cy="jugadoresPorEquipo"
+            formControlName="jugadoresPorEquipo"
+          />
+          @if (jugadoresPorEquipoRef.invalid && (jugadoresPorEquipoRef.dirty || jugadoresPorEquipoRef.touched)) {
+            <div>
+              @if (editForm.get('jugadoresPorEquipo')?.errors?.min) {
+                <small class="form-text text-danger">Este campo debe ser mayor que 1.</small>
+              }
+              @if (editForm.get('jugadoresPorEquipo')?.errors?.max) {
+                <small class="form-text text-danger">Este campo no puede ser mayor que 11.</small>
+              }
+              <small class="form-text text-danger" [hidden]="!editForm.get('jugadoresPorEquipo')?.errors?.number"
+                >Este campo debe ser un número.</small
+              >
+            </div>
+          }
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

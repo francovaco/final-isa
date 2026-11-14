@@ -1,0 +1,156 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-cancha-heading" data-cy="CanchaCreateUpdateHeading">Crear o editar Cancha</h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let nombreRef = editForm.get('nombre')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_nombre">Nombre</label>
+          <input type="text" class="form-control" name="nombre" id="field_nombre" data-cy="nombre" formControlName="nombre" />
+          @if (nombreRef.invalid && (nombreRef.dirty || nombreRef.touched)) {
+            <div>
+              @if (editForm.get('nombre')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+              @if (editForm.get('nombre')?.errors?.maxlength) {
+                <small class="form-text text-danger">Este campo no puede superar más de 40 caracteres.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let superficieRef = editForm.get('superficie')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_superficie">Superficie</label>
+          <select class="form-control" name="superficie" formControlName="superficie" id="field_superficie" data-cy="superficie">
+            <option [ngValue]="null"></option>
+            @for (superficie of superficieValues; track $index) {
+              <option [value]="superficie">
+                {{
+                  {
+                    null: '',
+                    CESPED_SINTETICO: 'CESPED_SINTETICO',
+                    POLVO_DE_LADRILLO: 'POLVO_DE_LADRILLO',
+                    CEMENTO: 'CEMENTO',
+                    PARQUET: 'PARQUET',
+                  }[superficie]
+                }}
+              </option>
+            }
+          </select>
+          @if (superficieRef.invalid && (superficieRef.dirty || superficieRef.touched)) {
+            <div>
+              @if (editForm.get('superficie')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let techadaRef = editForm.get('techada')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_techada">Techada</label>
+          <input type="checkbox" class="form-check" name="techada" id="field_techada" data-cy="techada" formControlName="techada" />
+          @if (techadaRef.invalid && (techadaRef.dirty || techadaRef.touched)) {
+            <div>
+              @if (editForm.get('techada')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let precioPorHoraRef = editForm.get('precioPorHora')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_precioPorHora">Precio Por Hora</label>
+          <input
+            type="number"
+            class="form-control"
+            name="precioPorHora"
+            id="field_precioPorHora"
+            data-cy="precioPorHora"
+            formControlName="precioPorHora"
+          />
+          @if (precioPorHoraRef.invalid && (precioPorHoraRef.dirty || precioPorHoraRef.touched)) {
+            <div>
+              @if (editForm.get('precioPorHora')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+              @if (editForm.get('precioPorHora')?.errors?.min) {
+                <small class="form-text text-danger">Este campo debe ser mayor que 0.</small>
+              }
+              <small class="form-text text-danger" [hidden]="!editForm.get('precioPorHora')?.errors?.number"
+                >Este campo debe ser un número.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let activaRef = editForm.get('activa')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_activa">Activa</label>
+          <input type="checkbox" class="form-check" name="activa" id="field_activa" data-cy="activa" formControlName="activa" />
+          @if (activaRef.invalid && (activaRef.dirty || activaRef.touched)) {
+            <div>
+              @if (editForm.get('activa')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_deporte">Deporte</label>
+          <select
+            class="form-control"
+            id="field_deporte"
+            data-cy="deporte"
+            name="deporte"
+            formControlName="deporte"
+            [compareWith]="compareDeporte"
+          >
+            @if (!editForm.get('deporte')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (deporteOption of deportesSharedCollection; track $index) {
+              <option [ngValue]="deporteOption">{{ deporteOption.nombre }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['deporte'])!.invalid && (editForm.get(['deporte'])!.dirty || editForm.get(['deporte'])!.touched)) {
+          <div>
+            @if (editForm.get(['deporte'])?.errors?.required) {
+              <small class="form-text text-danger">Este campo es obligatorio.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

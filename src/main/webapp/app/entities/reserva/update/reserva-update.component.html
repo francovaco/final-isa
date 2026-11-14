@@ -1,0 +1,187 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-reserva-heading" data-cy="ReservaCreateUpdateHeading">Crear o editar Reserva</h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let inicioRef = editForm.get('inicio')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_inicio">Inicio</label>
+          <div class="d-flex">
+            <input
+              id="field_inicio"
+              data-cy="inicio"
+              type="datetime-local"
+              class="form-control"
+              name="inicio"
+              formControlName="inicio"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+          @if (inicioRef.invalid && (inicioRef.dirty || inicioRef.touched)) {
+            <div>
+              @if (editForm.get('inicio')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+              <small class="form-text text-danger" [hidden]="!editForm.get('inicio')?.errors?.datetimelocal"
+                >Este campo debe ser una fecha y hora.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let duracionMinutosRef = editForm.get('duracionMinutos')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_duracionMinutos">Duracion Minutos</label>
+          <input
+            type="number"
+            class="form-control"
+            name="duracionMinutos"
+            id="field_duracionMinutos"
+            data-cy="duracionMinutos"
+            formControlName="duracionMinutos"
+          />
+          @if (duracionMinutosRef.invalid && (duracionMinutosRef.dirty || duracionMinutosRef.touched)) {
+            <div>
+              @if (editForm.get('duracionMinutos')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+              @if (editForm.get('duracionMinutos')?.errors?.min) {
+                <small class="form-text text-danger">Este campo debe ser mayor que 60.</small>
+              }
+              @if (editForm.get('duracionMinutos')?.errors?.max) {
+                <small class="form-text text-danger">Este campo no puede ser mayor que 120.</small>
+              }
+              <small class="form-text text-danger" [hidden]="!editForm.get('duracionMinutos')?.errors?.number"
+                >Este campo debe ser un número.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let estadoRef = editForm.get('estado')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_estado">Estado</label>
+          <select class="form-control" name="estado" formControlName="estado" id="field_estado" data-cy="estado">
+            <option [ngValue]="null"></option>
+            @for (estadoReserva of estadoReservaValues; track $index) {
+              <option [value]="estadoReserva">
+                {{ { null: '', CONFIRMADA: 'CONFIRMADA', CANCELADA: 'CANCELADA', FINALIZADA: 'FINALIZADA' }[estadoReserva] }}
+              </option>
+            }
+          </select>
+          @if (estadoRef.invalid && (estadoRef.dirty || estadoRef.touched)) {
+            <div>
+              @if (editForm.get('estado')?.errors?.required) {
+                <small class="form-text text-danger">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let observacionesRef = editForm.get('observaciones')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_observaciones">Observaciones</label>
+          <input
+            type="text"
+            class="form-control"
+            name="observaciones"
+            id="field_observaciones"
+            data-cy="observaciones"
+            formControlName="observaciones"
+          />
+          @if (observacionesRef.invalid && (observacionesRef.dirty || observacionesRef.touched)) {
+            <div>
+              @if (editForm.get('observaciones')?.errors?.maxlength) {
+                <small class="form-text text-danger">Este campo no puede superar más de 255 caracteres.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_creadaEn">Creada En</label>
+          <div class="d-flex">
+            <input
+              id="field_creadaEn"
+              data-cy="creadaEn"
+              type="datetime-local"
+              class="form-control"
+              name="creadaEn"
+              formControlName="creadaEn"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_cancha">Cancha</label>
+          <select
+            class="form-control"
+            id="field_cancha"
+            data-cy="cancha"
+            name="cancha"
+            formControlName="cancha"
+            [compareWith]="compareCancha"
+          >
+            @if (!editForm.get('cancha')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (canchaOption of canchasSharedCollection; track $index) {
+              <option [ngValue]="canchaOption">{{ canchaOption.nombre }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['cancha'])!.invalid && (editForm.get(['cancha'])!.dirty || editForm.get(['cancha'])!.touched)) {
+          <div>
+            @if (editForm.get(['cancha'])?.errors?.required) {
+              <small class="form-text text-danger">Este campo es obligatorio.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuario">Usuario</label>
+          <select
+            class="form-control"
+            id="field_usuario"
+            data-cy="usuario"
+            name="usuario"
+            formControlName="usuario"
+            [compareWith]="compareUser"
+          >
+            <option [ngValue]="null"></option>
+            @for (userOption of usersSharedCollection; track $index) {
+              <option [ngValue]="userOption">{{ userOption.login }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

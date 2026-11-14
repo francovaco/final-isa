@@ -1,0 +1,33 @@
+{
+  "annotations": {
+    "changelogDate": "20261114191945"
+  },
+  "applications": ["clubReservas"],
+  "documentation": "Deporte que se practica en el club (futbol 5, padel, tenis...).",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "nombre",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "40"
+    },
+    {
+      "fieldName": "descripcion",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "jugadoresPorEquipo",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "11",
+      "fieldValidateRulesMin": "1"
+    }
+  ],
+  "name": "Deporte",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

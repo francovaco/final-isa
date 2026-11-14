@@ -1,0 +1,66 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (cancha(); as canchaRef) {
+      <div>
+        <h2 data-cy="canchaDetailsHeading"><span>Cancha</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>ID</span></dt>
+          <dd>
+            <span>{{ canchaRef.id }}</span>
+          </dd>
+          <dt><span>Nombre</span></dt>
+          <dd>
+            <span>{{ canchaRef.nombre }}</span>
+          </dd>
+          <dt><span>Superficie</span></dt>
+          <dd>
+            <span>{{
+              {
+                null: '',
+                CESPED_SINTETICO: 'CESPED_SINTETICO',
+                POLVO_DE_LADRILLO: 'POLVO_DE_LADRILLO',
+                CEMENTO: 'CEMENTO',
+                PARQUET: 'PARQUET',
+              }[canchaRef.superficie ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span>Techada</span></dt>
+          <dd>
+            <span>{{ canchaRef.techada }}</span>
+          </dd>
+          <dt><span>Precio Por Hora</span></dt>
+          <dd>
+            <span>{{ canchaRef.precioPorHora }}</span>
+          </dd>
+          <dt><span>Activa</span></dt>
+          <dd>
+            <span>{{ canchaRef.activa }}</span>
+          </dd>
+          <dt><span>Deporte</span></dt>
+          <dd>
+            @if (cancha()!.deporte) {
+              <div>
+                <a [routerLink]="['/deporte', cancha()!.deporte?.id, 'view']">{{ canchaRef.deporte?.nombre }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/cancha', canchaRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

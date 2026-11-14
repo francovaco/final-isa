@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20261114192045"
+  },
+  "applications": ["clubReservas"],
+  "documentation": "Cancha que se puede reservar.",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "nombre",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "40"
+    },
+    {
+      "fieldName": "superficie",
+      "fieldType": "Superficie",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "CESPED_SINTETICO,POLVO_DE_LADRILLO,CEMENTO,PARQUET"
+    },
+    {
+      "fieldName": "techada",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "precioPorHora",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "activa",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "name": "Cancha",
+  "relationships": [
+    {
+      "otherEntityField": "nombre",
+      "otherEntityName": "deporte",
+      "relationshipName": "deporte",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

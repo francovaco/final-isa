@@ -1,0 +1,81 @@
+// =====================================================================
+//  ClubReservas - Reservas de canchas de un club deportivo
+//  Ingenieria de Software Aplicada  ·  Trabajo final
+//
+//  Generar con:  jhipster jdl clubreservas.jdl
+// =====================================================================
+
+application {
+  config {
+    baseName clubReservas
+    applicationType monolith
+    packageName ar.edu.um.isa.clubreservas
+    authenticationType jwt
+    buildTool maven
+    clientFramework angular
+    databaseType sql
+    devDatabaseType h2Disk
+    prodDatabaseType postgresql
+    cacheProvider ehcache
+    enableHibernateCache true
+    enableTranslation false
+    nativeLanguage es
+    testFrameworks []
+  }
+  entities *
+}
+
+enum Superficie {
+  CESPED_SINTETICO,
+  POLVO_DE_LADRILLO,
+  CEMENTO,
+  PARQUET
+}
+
+enum EstadoReserva {
+  CONFIRMADA,
+  CANCELADA,
+  FINALIZADA
+}
+
+/**
+ * Deporte que se practica en el club (futbol 5, padel, tenis...).
+ */
+entity Deporte {
+  nombre String required unique maxlength(40)
+  descripcion String maxlength(255)
+  jugadoresPorEquipo Integer min(1) max(11)
+}
+
+/**
+ * Cancha que se puede reservar.
+ */
+entity Cancha {
+  nombre String required unique maxlength(40)
+  superficie Superficie required
+  techada Boolean required
+  precioPorHora BigDecimal required min(0)
+  activa Boolean required
+}
+
+/**
+ * Reserva de una cancha por parte de un socio.
+ */
+entity Reserva {
+  inicio Instant required
+  duracionMinutos Integer required min(60) max(120)
+  estado EstadoReserva required
+  observaciones String maxlength(255)
+  creadaEn Instant
+}
+
+relationship ManyToOne {
+  Cancha{deporte(nombre) required} to Deporte
+  Reserva{cancha(nombre) required} to Cancha
+  Reserva{usuario(login)} to User with builtInEntity
+}
+
+dto * with mapstruct
+service * with serviceClass
+paginate Reserva with pagination
+filter Reserva

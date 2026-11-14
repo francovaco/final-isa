@@ -1,0 +1,17 @@
+# Configuracion de Gitleaks para ClubReservas.
+# Se usan las reglas por defecto y solo se excluyen archivos con secretos de
+# DESARROLLO/TEST generados por JHipster. El secreto de produccion no esta en el
+# repo: se inyecta con la variable JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET.
+title = "ClubReservas"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Secretos JWT de desarrollo y test (no se usan en produccion)"
+paths = [
+  '''^\.yo-rc\.json$''',
+  '''^src/main/resources/config/application-dev\.yml$''',
+  '''^src/test/resources/config/application\.yml$''',
+  '''^src/test/java/ar/edu/um/isa/clubreservas/security/jwt/AuthenticationIntegrationTest\.java$''',
+]

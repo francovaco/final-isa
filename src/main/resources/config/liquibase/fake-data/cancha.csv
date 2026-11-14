@@ -1,0 +1,11 @@
+id;nombre;superficie;techada;precio_por_hora;activa;deporte_id
+1;vibraphone;PARQUET;false;8316.34;false;1
+2;near meh;CEMENTO;true;24830.24;true;2
+3;quinoa;CEMENTO;false;25216.05;false;3
+4;aha mesh daily;CESPED_SINTETICO;true;13587.65;true;4
+5;failing;POLVO_DE_LADRILLO;true;12610.69;false;5
+6;playfully worth of;CESPED_SINTETICO;false;5916.86;true;6
+7;approach capsize before;CEMENTO;false;11145.98;true;7
+8;even honestly too;CEMENTO;false;22929.39;true;8
+9;scoop inject;PARQUET;true;6709.31;false;9
+10;frantically;CEMENTO;false;23419.17;false;10

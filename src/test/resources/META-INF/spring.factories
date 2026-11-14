@@ -1,0 +1,3 @@
+org.springframework.test.context.ContextCustomizerFactory = \
+    ar.edu.um.isa.clubreservas.config.\
+    SqlTestContainersSpringContextCustomizerFactory
