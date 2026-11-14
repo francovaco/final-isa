@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ar.edu.um.isa.clubreservas.IntegrationTest;
 import ar.edu.um.isa.clubreservas.domain.Deporte;
 import ar.edu.um.isa.clubreservas.repository.DeporteRepository;
+import ar.edu.um.isa.clubreservas.security.AuthoritiesConstants;
 import ar.edu.um.isa.clubreservas.service.dto.DeporteDTO;
 import ar.edu.um.isa.clubreservas.service.mapper.DeporteMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @IntegrationTest
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(authorities = AuthoritiesConstants.ADMIN)
 class DeporteResourceIT {
 
     private static final String DEFAULT_NOMBRE = "AAAAAAAAAA";
