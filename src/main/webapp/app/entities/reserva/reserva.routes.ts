@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
 import { ASC } from 'app/config/navigation.constants';
+import { Authority } from 'app/config/authority.constants';
 import ReservaResolve from './route/reserva-routing-resolve.service';
 
 const reservaRoute: Routes = [
@@ -35,6 +36,7 @@ const reservaRoute: Routes = [
     resolve: {
       reserva: ReservaResolve,
     },
+    data: { authorities: [Authority.ADMIN] },
     canActivate: [UserRouteAccessService],
   },
 ];

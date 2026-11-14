@@ -1,7 +1,7 @@
 <div class="d-flex justify-content-center">
   <div class="col-8">
     <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-      <h2 id="jhi-reserva-heading" data-cy="ReservaCreateUpdateHeading">Crear o editar Reserva</h2>
+      <h2 id="jhi-reserva-heading" data-cy="ReservaCreateUpdateHeading">{{ esNueva ? 'Nueva reserva' : 'Editar reserva' }}</h2>
 
       <div>
         <jhi-alert-error />
@@ -27,6 +27,7 @@
               placeholder="YYYY-MM-DD HH:mm"
             />
           </div>
+          <small class="form-text text-muted">El club abre de 08:00 a 23:00. Los turnos empiezan en punto o y media.</small>
           @if (inicioRef.invalid && (inicioRef.dirty || inicioRef.touched)) {
             <div>
               @if (editForm.get('inicio')?.errors?.required) {
@@ -35,58 +36,71 @@
               <small class="form-text text-danger" [hidden]="!editForm.get('inicio')?.errors?.datetimelocal"
                 >Este campo debe ser una fecha y hora.</small
               >
+              @if (editForm.get('inicio')?.errors?.fechaFutura) {
+                <small class="form-text text-danger" data-cy="error-fecha-futura">La reserva tiene que ser en el futuro.</small>
+              }
             </div>
+          }
+        </div>
+
+        <div class="mb-3" data-cy="clima">
+          @if (pronostico(); as clima) {
+            <div class="alert alert-info py-2 mb-0">
+              <fa-icon icon="cloud"></fa-icon>&nbsp; Pronóstico para Mendoza: <strong>{{ clima.descripcion }}</strong
+              >, {{ clima.temperaturaMin }}° / {{ clima.temperaturaMax }}°, {{ clima.probabilidadLluvia }}% de probabilidad de lluvia.
+            </div>
+          } @else {
+            <small class="form-text text-muted">Pronóstico no disponible para esa fecha.</small>
           }
         </div>
 
         @let duracionMinutosRef = editForm.get('duracionMinutos')!;
         <div class="mb-3">
-          <label class="form-label" for="field_duracionMinutos">Duracion Minutos</label>
-          <input
-            type="number"
+          <label class="form-label" for="field_duracionMinutos">Duración</label>
+          <select
             class="form-control"
             name="duracionMinutos"
             id="field_duracionMinutos"
             data-cy="duracionMinutos"
             formControlName="duracionMinutos"
-          />
+          >
+            @for (duracion of duracionesPermitidas; track duracion) {
+              <option [ngValue]="duracion">{{ duracion }} minutos</option>
+            }
+          </select>
           @if (duracionMinutosRef.invalid && (duracionMinutosRef.dirty || duracionMinutosRef.touched)) {
             <div>
               @if (editForm.get('duracionMinutos')?.errors?.required) {
                 <small class="form-text text-danger">Este campo es obligatorio.</small>
               }
-              @if (editForm.get('duracionMinutos')?.errors?.min) {
-                <small class="form-text text-danger">Este campo debe ser mayor que 60.</small>
+              @if (editForm.get('duracionMinutos')?.errors?.duracionPermitida) {
+                <small class="form-text text-danger">La duración debe ser de 60, 90 o 120 minutos.</small>
               }
-              @if (editForm.get('duracionMinutos')?.errors?.max) {
-                <small class="form-text text-danger">Este campo no puede ser mayor que 120.</small>
-              }
-              <small class="form-text text-danger" [hidden]="!editForm.get('duracionMinutos')?.errors?.number"
-                >Este campo debe ser un número.</small
-              >
             </div>
           }
         </div>
 
-        @let estadoRef = editForm.get('estado')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_estado">Estado</label>
-          <select class="form-control" name="estado" formControlName="estado" id="field_estado" data-cy="estado">
-            <option [ngValue]="null"></option>
-            @for (estadoReserva of estadoReservaValues; track $index) {
-              <option [value]="estadoReserva">
-                {{ { null: '', CONFIRMADA: 'CONFIRMADA', CANCELADA: 'CANCELADA', FINALIZADA: 'FINALIZADA' }[estadoReserva] }}
-              </option>
-            }
-          </select>
-          @if (estadoRef.invalid && (estadoRef.dirty || estadoRef.touched)) {
-            <div>
-              @if (editForm.get('estado')?.errors?.required) {
-                <small class="form-text text-danger">Este campo es obligatorio.</small>
+        @if (!esNueva) {
+          @let estadoRef = editForm.get('estado')!;
+          <div class="mb-3">
+            <label class="form-label" for="field_estado">Estado</label>
+            <select class="form-control" name="estado" formControlName="estado" id="field_estado" data-cy="estado">
+              <option [ngValue]="null"></option>
+              @for (estadoReserva of estadoReservaValues; track $index) {
+                <option [value]="estadoReserva">
+                  {{ { null: '', CONFIRMADA: 'CONFIRMADA', CANCELADA: 'CANCELADA', FINALIZADA: 'FINALIZADA' }[estadoReserva] }}
+                </option>
               }
-            </div>
-          }
-        </div>
+            </select>
+            @if (estadoRef.invalid && (estadoRef.dirty || estadoRef.touched)) {
+              <div>
+                @if (editForm.get('estado')?.errors?.required) {
+                  <small class="form-text text-danger">Este campo es obligatorio.</small>
+                }
+              </div>
+            }
+          </div>
+        }
 
         @let observacionesRef = editForm.get('observaciones')!;
         <div class="mb-3">
@@ -108,20 +122,22 @@
           }
         </div>
 
-        <div class="mb-3">
-          <label class="form-label" for="field_creadaEn">Creada En</label>
-          <div class="d-flex">
-            <input
-              id="field_creadaEn"
-              data-cy="creadaEn"
-              type="datetime-local"
-              class="form-control"
-              name="creadaEn"
-              formControlName="creadaEn"
-              placeholder="YYYY-MM-DD HH:mm"
-            />
+        @if (!esNueva) {
+          <div class="mb-3">
+            <label class="form-label" for="field_creadaEn">Creada En</label>
+            <div class="d-flex">
+              <input
+                id="field_creadaEn"
+                data-cy="creadaEn"
+                type="datetime-local"
+                class="form-control"
+                name="creadaEn"
+                formControlName="creadaEn"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
+            </div>
           </div>
-        </div>
+        }
 
         <div class="mb-3">
           <label class="form-label" for="field_cancha">Cancha</label>
@@ -149,22 +165,24 @@
           </div>
         }
 
-        <div class="mb-3">
-          <label class="form-label" for="field_usuario">Usuario</label>
-          <select
-            class="form-control"
-            id="field_usuario"
-            data-cy="usuario"
-            name="usuario"
-            formControlName="usuario"
-            [compareWith]="compareUser"
-          >
-            <option [ngValue]="null"></option>
-            @for (userOption of usersSharedCollection; track $index) {
-              <option [ngValue]="userOption">{{ userOption.login }}</option>
-            }
-          </select>
-        </div>
+        @if (!esNueva && esAdmin) {
+          <div class="mb-3">
+            <label class="form-label" for="field_usuario">Usuario</label>
+            <select
+              class="form-control"
+              id="field_usuario"
+              data-cy="usuario"
+              name="usuario"
+              formControlName="usuario"
+              [compareWith]="compareUser"
+            >
+              <option [ngValue]="null"></option>
+              @for (userOption of usersSharedCollection; track $index) {
+                <option [ngValue]="userOption">{{ userOption.login }}</option>
+              }
+            </select>
+          </div>
+        }
       </div>
 
       <div>

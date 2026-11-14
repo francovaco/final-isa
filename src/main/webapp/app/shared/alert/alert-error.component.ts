@@ -84,7 +84,8 @@ export class AlertErrorComponent implements OnDestroy {
       }
     }
     if (errorHeader) {
-      this.addErrorAlert(errorHeader);
+      // Si el backend explica el motivo (reglas de negocio), se muestra ese texto en lugar del código
+      this.addErrorAlert(httpErrorResponse.error?.detail ?? errorHeader);
     } else if (httpErrorResponse.error !== '' && httpErrorResponse.error.fieldErrors) {
       this.handleFieldsError(httpErrorResponse);
     } else if (httpErrorResponse.error !== '' && httpErrorResponse.error.message) {
