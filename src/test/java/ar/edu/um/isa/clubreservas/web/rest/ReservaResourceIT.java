@@ -15,12 +15,14 @@ import ar.edu.um.isa.clubreservas.domain.User;
 import ar.edu.um.isa.clubreservas.domain.enumeration.EstadoReserva;
 import ar.edu.um.isa.clubreservas.repository.ReservaRepository;
 import ar.edu.um.isa.clubreservas.repository.UserRepository;
+import ar.edu.um.isa.clubreservas.security.AuthoritiesConstants;
 import ar.edu.um.isa.clubreservas.service.ReservaService;
 import ar.edu.um.isa.clubreservas.service.dto.ReservaDTO;
 import ar.edu.um.isa.clubreservas.service.mapper.ReservaMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Random;
@@ -46,7 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 @IntegrationTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(authorities = AuthoritiesConstants.ADMIN)
 class ReservaResourceIT {
 
     private static final Instant DEFAULT_INICIO = Instant.ofEpochMilli(0L);
@@ -151,6 +153,11 @@ class ReservaResourceIT {
         return updatedReserva;
     }
 
+    /** Mañana a las 10:00, hora del club: un turno que cumple todas las reglas de negocio. */
+    static Instant proximoTurnoValido() {
+        return LocalDate.now(ReservaService.ZONA_CLUB).plusDays(1).atTime(10, 0).atZone(ReservaService.ZONA_CLUB).toInstant();
+    }
+
     @BeforeEach
     void initTest() {
         reserva = createEntity(em);
@@ -168,6 +175,10 @@ class ReservaResourceIT {
     @Transactional
     void createReserva() throws Exception {
         long databaseSizeBeforeCreate = getRepositoryCount();
+        // Reglas de negocio: horario valido (manana a las 10:00 hora del club) y cancha activa
+        reserva.setInicio(proximoTurnoValido());
+        reserva.getCancha().setActiva(true);
+        em.flush();
         // Create the Reserva
         ReservaDTO reservaDTO = reservaMapper.toDto(reserva);
         var returnedReservaDTO = om.readValue(
