@@ -1,0 +1,28 @@
+{
+  // Puerta SCA del pipeline: falla con cualquier vulnerabilidad HIGH o CRITICAL
+  // en las dependencias que llegan al navegador (dependencies de package.json).
+  //
+  // Las devDependencies (JHipster, Angular CLI, webpack, ESLint...) se omiten:
+  // solo corren en la maquina del desarrollador o en el CI y no se entregan al usuario.
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "high": true,
+  "skip-dev": true,
+  "report-type": "important",
+  // Avisos de Angular 19 sin parche en la rama 19.x (la correccion esta en Angular 21).
+  // Se revisaron uno por uno y ninguno aplica a esta app:
+  "allowlist": [
+    // HttpTransferCache: solo existe con SSR + hidratacion. La app no usa SSR.
+    "GHSA-39pv-4j6c-2g6v",
+    "GHSA-jhpw-976m-542j",
+    // Hidratacion del cliente: solo con SSR (provideClientHydration). No se usa.
+    "GHSA-rgjc-h3x7-9mwg",
+    // Router en SSR: DoS del servidor de renderizado. No hay servidor Node/SSR.
+    "GHSA-ff3f-86qr-9cv3",
+    "GHSA-62vg-58rm-qff7",
+    // XSS via atributos i18n: la app no usa marcadores i18n (enableTranslation false).
+    "GHSA-jj27-h5hq-8x99",
+    // DoS en formatDate con un formato controlado por el atacante: todos los
+    // formatos de fecha de la app estan fijos en el codigo.
+    "GHSA-48r7-hpm6-gfxm"
+  ]
+}

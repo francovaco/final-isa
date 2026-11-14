@@ -1,0 +1,20 @@
+# Archivos que Semgrep no analiza.
+# (Al existir este archivo se reemplazan los ignores por defecto, por eso se listan acá.)
+
+# Dependencias y salidas de build: no son código nuestro
+node_modules/
+target/
+.angular/
+
+# Usuarios de ejemplo de JHipster (admin/admin, user/user) que Liquibase carga para
+# desarrollo, la demo y los tests E2E. Son hashes bcrypt de contraseñas públicas
+# conocidas, no secretos. Pendiente para producción: cambiar esas contraseñas.
+src/main/resources/config/liquibase/data/user.csv
+
+# Codigo de test (Semgrep tambien excluye los tests por defecto):
+# - Secreto JWT solo para los tests (no se usa en produccion; mismo caso que .gitleaks.toml)
+src/test/resources/config/application.yml
+src/test/java/ar/edu/um/isa/clubreservas/security/jwt/AuthenticationIntegrationTest.java
+# - Helper de Testcontainers generado por JHipster: carga por reflexion la clase del
+#   contenedor de base de datos a partir de una anotacion del propio test, no de datos del usuario
+src/test/java/ar/edu/um/isa/clubreservas/config/SqlTestContainersSpringContextCustomizerFactory.java
