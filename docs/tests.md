@@ -7,7 +7,12 @@
 | Unidad (frontend)     | Jest                                           | 433   | 44      | `src/main/webapp/app/**/*.spec.ts` |
 | End-to-end            | Playwright (Chromium)                          | 19    | 19      | `src/test/playwright/`             |
 
-Los tests "propios" son los escritos para este trabajo; el resto los genera JHipster (ABM de entidades, usuarios, seguridad, arquitectura) y se mantienen porque avisan si algo de lo generado se rompe. Todos corren en el CI en cada push (ver [ci-cd.md](ci-cd.md)). Comandos en [COMANDOS.md](../COMANDOS.md).
+Los tests "propios" son los escritos para este trabajo; el resto los genera JHipster (ABM de entidades, usuarios, seguridad, arquitectura) y se mantienen porque avisan si algo de lo generado se rompe. Todos corren en el CI en cada push (ver [ci-cd.md](ci-cd.md)). Los comandos de E2E están en [COMANDOS.md](../COMANDOS.md). Para los de unidad e integración (requieren JDK 21 y Node 22):
+
+| Para                          | Comando         |
+| ----------------------------- | --------------- |
+| Backend: unidad + integración | `./mvnw verify` |
+| Frontend: Jest + lint         | `npm test`      |
 
 ## Tests de unidad (backend)
 

@@ -30,7 +30,7 @@ Levanta la app, PostgreSQL y ELK, y espera a que todo esté listo.
 | Kibana    | http://localhost:5601                                             | `elastic` / `changeme`             |
 | Dashboard | http://localhost:5601/app/dashboards#/view/clubreservas-operacion |                                    |
 
-Todos los comandos (apagar, tests, Playwright, tráfico de prueba, desarrollo) están en **[COMANDOS.md](COMANDOS.md)**.
+Los comandos básicos (levantar, apagar y correr los tests E2E) están en **[COMANDOS.md](COMANDOS.md)**.
 
 ## Funcionalidades
 
@@ -54,7 +54,7 @@ Todos los comandos (apagar, tests, Playwright, tráfico de prueba, desarrollo) e
 | [docs/ci-cd.md](docs/ci-cd.md)               | Pipeline de GitHub Actions, puertas de seguridad y excepciones   |
 | [docs/elk.md](docs/elk.md)                   | Logs, dashboard de Kibana y alertas                              |
 | [docs/decisiones.md](docs/decisiones.md)     | Decisiones técnicas y problemas encontrados                      |
-| [COMANDOS.md](COMANDOS.md)                   | Comandos para levantar, probar y operar todo                     |
+| [COMANDOS.md](COMANDOS.md)                   | Comandos para levantar, apagar y correr los tests E2E            |
 
 ## Stack
 
