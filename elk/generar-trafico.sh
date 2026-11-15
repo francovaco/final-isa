@@ -47,13 +47,16 @@ fi
 
 CANCHAS=$(canchas_activas)
 if [ -z "$CANCHAS" ]; then
-  echo "== No hay canchas activas: se crean un deporte y dos canchas"
-  SUFIJO=$RANDOM
-  DEP=$(curl -s -X POST "$APP_URL/api/deportes" -H "$JSON" -H "Authorization: Bearer $ADMIN" \
-    -d "{\"nombre\":\"Pádel $SUFIJO\",\"jugadoresPorEquipo\":2}" | json 'd["id"]')
+  echo "== No hay canchas activas: se crean el deporte Pádel y las canchas Cancha 1 y Cancha 2"
+  # Reutiliza el deporte si ya existe (los nombres son únicos)
+  DEP=$(curl -s "$APP_URL/api/deportes?size=100" -H "Authorization: Bearer $ADMIN" | json 'next((x["id"] for x in d if x["nombre"] == "Pádel"), "")')
+  if [ -z "$DEP" ]; then
+    DEP=$(curl -s -X POST "$APP_URL/api/deportes" -H "$JSON" -H "Authorization: Bearer $ADMIN" \
+      -d '{"nombre":"Pádel","jugadoresPorEquipo":2}' | json 'd["id"]')
+  fi
   for n in 1 2; do
     curl -s -o /dev/null -X POST "$APP_URL/api/canchas" -H "$JSON" -H "Authorization: Bearer $ADMIN" \
-      -d "{\"nombre\":\"Cancha $n-$SUFIJO\",\"superficie\":\"CESPED_SINTETICO\",\"techada\":true,\"precioPorHora\":18000,\"activa\":true,\"deporte\":{\"id\":$DEP}}"
+      -d "{\"nombre\":\"Cancha $n\",\"superficie\":\"CESPED_SINTETICO\",\"techada\":true,\"precioPorHora\":18000,\"activa\":true,\"deporte\":{\"id\":$DEP}}"
   done
   CANCHAS=$(canchas_activas)
 fi
