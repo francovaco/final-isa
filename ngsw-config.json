@@ -33,9 +33,10 @@
       "name": "api-catalogo",
       "urls": ["/api/deportes**", "/api/deportes/**", "/api/canchas**", "/api/canchas/**"],
       "cacheConfig": {
-        "strategy": "performance",
+        "strategy": "freshness",
         "maxSize": 50,
-        "maxAge": "1d"
+        "maxAge": "1d",
+        "timeout": "3s"
       }
     },
     {
