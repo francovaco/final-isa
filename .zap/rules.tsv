@@ -1,0 +1,3 @@
+10049	INFO	(Contenido cacheable / no cacheable: informativo. La API responde con Cache-Control no-store a propósito y los recursos estáticos con versión en el nombre se cachean)
+10055	INFO	(CSP: el único hallazgo restante es style-src 'unsafe-inline'. Angular inyecta los estilos de los componentes como etiquetas <style>; un nonce requeriría generar index.html por request. script-src no tiene 'unsafe-inline' ni 'unsafe-eval' y están todas las directivas sin fallback. Se deja en INFO para que siga apareciendo en el reporte)
+10109	INFO	(Modern Web Application: informativo, ZAP avisa que la app es una SPA de Angular)
