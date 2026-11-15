@@ -213,7 +213,12 @@ jhipster:
     license: unlicensed
     license-url:
   security:
-    content-security-policy: "default-src 'self'; connect-src 'self' https://api.open-meteo.com; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
+    # CSP endurecida tras el escaneo de ZAP (Fase 8):
+    #  - sin 'unsafe-inline' ni 'unsafe-eval' en script-src (el build de producción de Angular no los necesita)
+    #  - directivas que no heredan de default-src: frame-ancestors, form-action, base-uri, object-src
+    #  - style-src mantiene 'unsafe-inline': Angular inyecta los estilos de los componentes como <style>
+    #  - connect-src permite la API del clima (Open-Meteo)
+    content-security-policy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://api.open-meteo.com; frame-src 'self' data:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'"
 
 # jhipster-needle-add-application-yaml-document
 ---
