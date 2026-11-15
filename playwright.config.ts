@@ -5,7 +5,9 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * Corren contra la app ya levantada (por defecto http://localhost:8080, perfil prod):
  *   ./start.sh            o   docker compose up -d --no-deps postgresql app
- *   npm run e2e           (headless)    |   npm run e2e:ui   (modo interactivo)
+ *   npm run e2e           (headless)
+ *   npm run e2e:visual    (abre Chromium y se ve cada paso, más lento)
+ *   npm run e2e:ui        (modo interactivo: elegir tests, ver cada paso y los snapshots)
  *
  * Otra URL:  E2E_BASE_URL=http://otra:8080 npm run e2e
  */
@@ -29,6 +31,8 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    // Pausa entre acciones (ms), para seguir los tests con la vista en modo visual (npm run e2e:visual)
+    launchOptions: { slowMo: Number(process.env.SLOWMO ?? 0) },
   },
   projects: [
     // Inicia sesión una vez como admin y como socio y guarda la sesión para los demás tests
