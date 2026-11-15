@@ -34,6 +34,7 @@
     "e2e": "playwright test",
     "e2e:reporte": "playwright show-report target/playwright/reporte",
     "e2e:ui": "playwright test --ui",
+    "e2e:visual": "SLOWMO=${SLOWMO:-700} playwright test --headed",
     "java:docker": "./mvnw -ntp verify -DskipTests -Pprod jib:dockerBuild",
     "java:docker:arm64": "npm run java:docker -- -Djib-maven-plugin.architecture=arm64",
     "java:docker:dev": "npm run java:docker -- -Pdev,webapp",
