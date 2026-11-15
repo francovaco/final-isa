@@ -23,7 +23,7 @@ if [ ! -f .env ]; then
 # Generado por start.sh; no se sube al repo (ver .env.example)
 JWT_BASE64_SECRET=$(openssl rand -base64 64 | tr -d '\n')
 POSTGRES_PASSWORD=$(aleatorio 12)
-ELASTIC_PASSWORD=$(aleatorio 12)
+ELASTIC_PASSWORD=changeme
 KIBANA_SYSTEM_PASSWORD=$(aleatorio 12)
 LOGSTASH_INTERNAL_PASSWORD=$(aleatorio 12)
 KIBANA_ENCRYPTION_KEY=$(aleatorio 32)
