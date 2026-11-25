@@ -4,7 +4,7 @@
 | --------------------- | ---------------------------------------------- | ----- | ------- | ---------------------------------- |
 | Unidad (backend)      | JUnit 5, Mockito, AssertJ, ArchUnit            | 88    | 32      | `src/test/java/**/*Test.java`      |
 | Integración (backend) | Spring Boot Test + Testcontainers (PostgreSQL) | 199   | 8       | `src/test/java/**/*IT.java`        |
-| Unidad (frontend)     | Jest                                           | 433   | 44      | `src/main/webapp/app/**/*.spec.ts` |
+| Unidad (frontend)     | Jest                                           | 435   | 46      | `src/main/webapp/app/**/*.spec.ts` |
 | End-to-end            | Playwright (Chromium)                          | 19    | 19      | `src/test/playwright/`             |
 
 Los tests "propios" son los escritos para este trabajo; el resto los genera JHipster (ABM de entidades, usuarios, seguridad, arquitectura) y se mantienen porque avisan si algo de lo generado se rompe. Todos corren en el CI en cada push (ver [ci-cd.md](ci-cd.md)). Los comandos de E2E están en [COMANDOS.md](../COMANDOS.md). Para los de unidad e integración (requieren JDK 21 y Node 22):
@@ -33,14 +33,14 @@ Los `*ResourceIT` generados por JHipster se adaptaron a las reglas nuevas (corre
 
 ## Tests de unidad (frontend)
 
-| Archivo                            | Qué prueba                                                                                   |
-| ---------------------------------- | -------------------------------------------------------------------------------------------- |
-| `reserva-reglas.spec.ts`           | Validadores de duración y fecha futura, y cuándo se puede cancelar                           |
-| `clima.service.spec.ts`            | Pedido a Open-Meteo (sin enviar el token), fecha fuera de rango, API caída, códigos de clima |
-| `reserva.component.spec.ts`        | Confirmación y cancelación desde el listado, botón según rol y anticipación                  |
-| `reserva-update.component.spec.ts` | Solo canchas activas, el socio no carga usuarios, pronóstico del día                         |
-| `pwa.service.spec.ts`              | Estado de conexión, versión nueva y limpieza de la caché de datos                            |
-| `login.service.spec.ts`            | Al cerrar sesión se borra la caché de datos                                                  |
+| Archivo                            | Qué prueba                                                                                            |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `reserva-reglas.spec.ts`           | Validadores de duración y fecha futura, y cuándo se puede cancelar                                    |
+| `clima.service.spec.ts`            | Pedido a Open-Meteo (sin enviar el token), fecha fuera de rango, API caída, códigos de clima          |
+| `reserva.component.spec.ts`        | Confirmación y cancelación desde el listado, botón según rol y anticipación                           |
+| `reserva-update.component.spec.ts` | Solo canchas activas, el socio no carga usuarios, pronóstico del día                                  |
+| `pwa.service.spec.ts`              | Registro con Workbox, aviso de versión nueva y "Actualizar", conexión y limpieza de la caché de datos |
+| `login.service.spec.ts`            | Al cerrar sesión se borra la caché de datos                                                           |
 
 ## Tests E2E (Playwright)
 

@@ -107,6 +107,6 @@ final-isa/
 ├── src/main/webapp/...              Frontend Angular (PWA)
 ├── src/test/java/...                Tests de unidad e integración
 ├── src/test/playwright/             Tests E2E
-├── ngsw-config.json                 Estrategias de caché del service worker
+├── workbox.config.cjs               Service worker (Workbox): precache y estrategias de caché
 └── docs/                            Esta documentación
 ```

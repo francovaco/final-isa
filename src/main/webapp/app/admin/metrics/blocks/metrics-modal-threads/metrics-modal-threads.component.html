@@ -65,7 +65,7 @@
 
         &nbsp;{{ thread.threadName }} (ID {{ thread.threadId }})
 
-        <a (click)="thread.showThreadDump = !thread.showThreadDump" href="javascript:void(0);">
+        <a (click)="thread.showThreadDump = !thread.showThreadDump" role="button" tabindex="0">
           <span [hidden]="thread.showThreadDump">Mostrar</span>
           <span [hidden]="!thread.showThreadDump">Ocultar</span>
         </a>

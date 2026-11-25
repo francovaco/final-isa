@@ -6,13 +6,13 @@ Trabajo final de **Ingeniería de Software Aplicada** (Universidad de Mendoza).
 
 Aplicación para **reservar canchas de un club deportivo**, hecha con **JHipster 8.11** (Spring Boot + Angular). Integra:
 
-| Requisito                | Cómo está resuelto                                                                                        |
-| ------------------------ | --------------------------------------------------------------------------------------------------------- |
-| **PWA**                  | Service worker de Angular con caché por estrategia, funcionamiento offline, manifest e íconos instalables |
-| **Tests de unidad**      | JUnit 5 + Mockito (backend) y Jest (frontend), sobre las reglas de negocio                                |
-| **Tests E2E**            | Playwright: login, reservas, permisos, PWA offline y clima                                                |
-| **Logs (ELK)**           | Logs estructurados a Logstash, dashboard en Kibana y 3 alertas                                            |
-| **Integración continua** | GitHub Actions: tests, SCA, SAST, secretos, Trivy, E2E y DAST con ZAP en cada push                        |
+| Requisito                | Cómo está resuelto                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| **PWA**                  | Service worker con Workbox, caché por estrategia, funcionamiento offline, manifest e íconos instalables |
+| **Tests de unidad**      | JUnit 5 + Mockito (backend) y Jest (frontend), sobre las reglas de negocio                              |
+| **Tests E2E**            | Playwright: login, reservas, permisos, PWA offline y clima                                              |
+| **Logs (ELK)**           | Logs estructurados a Logstash, dashboard en Kibana y 3 alertas                                          |
+| **Integración continua** | GitHub Actions: tests, SCA, SAST, secretos, Trivy, E2E y DAST con ZAP en cada push                      |
 
 ## Inicio rápido
 
@@ -59,7 +59,7 @@ Los comandos básicos (levantar, apagar y correr los tests E2E) están en **[COM
 ## Stack
 
 - **Backend:** Java 21, Spring Boot 3.5, Spring Security (JWT), JPA/Hibernate, Liquibase, PostgreSQL 17
-- **Frontend:** Angular 19, Bootstrap, Angular Service Worker
+- **Frontend:** Angular 19, Bootstrap, Workbox 7.4 (service worker)
 - **Logs:** logstash-logback-encoder, Elasticsearch / Logstash / Kibana 9.5.4
 - **Tests:** JUnit 5, Mockito, AssertJ, ArchUnit, Testcontainers, Jest, Playwright 1.64
 - **CI/CD:** GitHub Actions, audit-ci, Semgrep, Gitleaks, Trivy, OWASP ZAP

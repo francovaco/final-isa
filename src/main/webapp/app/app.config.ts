@@ -1,4 +1,4 @@
-import { ApplicationConfig, LOCALE_ID, importProvidersFrom, inject, isDevMode } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, importProvidersFrom, inject } from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import {
   NavigationError,
@@ -10,7 +10,6 @@ import {
   withDebugTracing,
   withNavigationErrorHandler,
 } from '@angular/router';
-import { ServiceWorkerModule } from '@angular/service-worker';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
@@ -46,14 +45,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, ...routerFeatures),
     importProvidersFrom(BrowserModule),
-    // Service worker (PWA): solo en el build de produccion. Se registra cuando la app
-    // queda estable (o a los 30 s) para no competir con la carga inicial.
-    importProvidersFrom(
-      ServiceWorkerModule.register('ngsw-worker.js', {
-        enabled: !isDevMode(),
-        registrationStrategy: 'registerWhenStable:30000',
-      }),
-    ),
     provideHttpClient(withInterceptorsFromDi()),
     Title,
     { provide: LOCALE_ID, useValue: 'es' },

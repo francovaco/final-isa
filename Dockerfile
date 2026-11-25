@@ -15,7 +15,7 @@ COPY mvnw pom.xml package.json package-lock.json ./
 COPY sonar-project.properties checkstyle.xml ./
 
 # Después el resto del código
-COPY angular.json tsconfig.json tsconfig.app.json ngsw-config.json .prettierrc .prettierignore eslint.config.mjs .lintstagedrc.cjs ./
+COPY angular.json tsconfig.json tsconfig.app.json workbox.config.cjs .prettierrc .prettierignore eslint.config.mjs .lintstagedrc.cjs ./
 COPY webpack/ webpack/
 COPY src/main/ src/main/
 
