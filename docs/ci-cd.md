@@ -1,6 +1,6 @@
 # Integración continua (GitHub Actions)
 
-El pipeline (`.github/workflows/pipeline.yml`) corre en **cada push** a cualquier rama y en **cada pull request a `main`**. Si llega un push nuevo a la misma rama, cancela la corrida anterior.
+El pipeline (`.github/workflows/pipeline.yml`) corre en **cada pull request a `main`** y en **cada push a `main`** (que, como `main` está protegida, solo ocurre al mergear una PR). Los pushes a `develop` u otras ramas de trabajo no lo disparan. Si llega un push nuevo a una PR, se cancela la corrida anterior.
 
 ```mermaid
 flowchart LR
@@ -71,5 +71,6 @@ Si se renombra un job en el workflow, hay que actualizar también los checks req
 
 ## Convenciones
 
-- Una rama por cambio y PR a `main`; merge con _rebase_ para mantener el historial lineal.
+- Se trabaja en la rama **`develop`** (sin restricciones, no dispara el CI) y se abre una PR de `develop` a `main`.
+- Las PR de `develop` a `main` se mergean con **"Create a merge commit"**, para que las dos ramas compartan los mismos commits.
 - Commits en formato **Conventional Commits** (`feat:`, `fix:`, `test:`, `ci:`, `build:`, `docs:`, `chore:`).
