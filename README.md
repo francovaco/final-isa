@@ -12,7 +12,7 @@ Aplicación para **reservar canchas de un club deportivo**, hecha con **JHipster
 | **Tests de unidad**      | JUnit 5 + Mockito (backend) y Jest (frontend), sobre las reglas de negocio                              |
 | **Tests E2E**            | Playwright: login, reservas, permisos, PWA offline y clima                                              |
 | **Logs (ELK)**           | Logs estructurados a Logstash, dashboard en Kibana y 3 alertas                                          |
-| **Integración continua** | GitHub Actions: tests, SCA, SAST, secretos, Trivy, E2E y DAST con ZAP en cada push                      |
+| **Integración continua** | GitHub Actions: tests, SCA, SAST, secretos, Trivy, E2E y DAST con ZAP en cada PR a main                 |
 
 ## Inicio rápido
 

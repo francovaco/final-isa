@@ -1,9 +1,12 @@
 name: pipeline
 
-# Corre en cada push (a cualquier rama) y en cada pull request hacia main.
+# Corre en cada pull request hacia main (antes de mergear) y en cada push a main
+# (al mergear, para confirmar que main quedó en verde). Los pushes a develop u otras
+# ramas de trabajo no lo disparan.
 on:
-  push:
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
 
 # Si llega un push nuevo a la misma rama, se cancela la corrida anterior.
