@@ -1,7 +1,20 @@
-import { DestroyRef, Injectable, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
-import { filter } from 'rxjs/operators';
+import { DestroyRef, Injectable, InjectionToken, inject, isDevMode, signal } from '@angular/core';
+import { Workbox } from 'workbox-window';
+
+/** Lo mínimo que usa la app de workbox-window (se reemplaza en los tests). */
+export type ServiceWorkerPwa = Pick<Workbox, 'addEventListener' | 'register' | 'messageSkipWaiting'>;
+
+/**
+ * Crea el registro del service worker generado por Workbox (sw.js).
+ * Devuelve null en desarrollo (npm start) y en navegadores sin soporte.
+ */
+export const CREAR_SERVICE_WORKER = new InjectionToken<() => ServiceWorkerPwa | null>('CREAR_SERVICE_WORKER', {
+  providedIn: 'root',
+  factory: () => () => (!isDevMode() && typeof navigator !== 'undefined' && 'serviceWorker' in navigator ? new Workbox('/sw.js') : null),
+});
+
+/** Nombres de las caches de datos (runtimeCaching de workbox.config.cjs). */
+export const CACHES_DE_DATOS = ['api-cuenta', 'api-catalogo', 'api-reservas', 'clima-open-meteo'];
 
 /**
  * Estado de la PWA: conexión, versiones nuevas del service worker y limpieza de la caché de datos.
@@ -11,45 +24,50 @@ export class PwaService {
   /** true si el navegador tiene conexión. */
   readonly online = signal(typeof navigator === 'undefined' ? true : navigator.onLine);
 
-  /** true cuando el service worker descargó una versión nueva de la app. */
+  /** true cuando hay una versión nueva del service worker esperando para activarse. */
   readonly hayNuevaVersion = signal(false);
 
-  // Opcional: en los tests (y en navegadores sin soporte) no hay service worker
-  private readonly swUpdate = inject(SwUpdate, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
+  private readonly serviceWorker = inject(CREAR_SERVICE_WORKER)();
 
   constructor() {
-    const actualizar = (): void => this.online.set(navigator.onLine);
-    window.addEventListener('online', actualizar);
-    window.addEventListener('offline', actualizar);
+    const actualizarConexion = (): void => this.online.set(navigator.onLine);
+    window.addEventListener('online', actualizarConexion);
+    window.addEventListener('offline', actualizarConexion);
     this.destroyRef.onDestroy(() => {
-      window.removeEventListener('online', actualizar);
-      window.removeEventListener('offline', actualizar);
+      window.removeEventListener('online', actualizarConexion);
+      window.removeEventListener('offline', actualizarConexion);
     });
 
-    if (this.swUpdate?.isEnabled) {
-      this.swUpdate.versionUpdates
-        .pipe(
-          filter((evento): evento is VersionReadyEvent => evento.type === 'VERSION_READY'),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe(() => this.hayNuevaVersion.set(true));
+    const sw = this.serviceWorker;
+    if (sw) {
+      // Hay una versión nueva instalada que espera: se ofrece "Actualizar"
+      sw.addEventListener('waiting', () => this.hayNuevaVersion.set(true));
+      // Se registra cuando terminó de cargar la página, para no competir con la carga inicial
+      if (document.readyState === 'complete') {
+        void sw.register();
+      } else {
+        window.addEventListener('load', () => void sw.register(), { once: true });
+      }
     }
   }
 
-  /** Activa la versión nueva y recarga la página. */
-  async actualizar(): Promise<void> {
-    if (this.swUpdate?.isEnabled) {
-      await this.swUpdate.activateUpdate();
+  /** Activa la versión nueva del service worker y recarga la página cuando toma el control. */
+  actualizar(): void {
+    const sw = this.serviceWorker;
+    if (!sw) {
+      document.location.reload();
+      return;
     }
-    document.location.reload();
+    sw.addEventListener('controlling', () => document.location.reload());
+    sw.messageSkipWaiting();
   }
 
   /**
-   * Borra las respuestas de la API que guardó el service worker (dataGroups).
+   * Borra las respuestas de la API que guardó el service worker.
    * El service worker cachea por URL, no por usuario: si no se borran al cerrar sesión,
    * otra persona en el mismo dispositivo podría ver offline las reservas del usuario anterior.
-   * La app en sí (JS, CSS, íconos) queda cacheada.
+   * La app en sí (precache de Workbox: JS, CSS, íconos) queda cacheada.
    */
   async limpiarCacheDeDatos(): Promise<void> {
     if (typeof caches === 'undefined') {
@@ -60,7 +78,7 @@ export class PwaService {
   }
 }
 
-/** Las caches de dataGroups de Angular se llaman "ngsw:<ruta>:<version>:data:<tipo>:<grupo>:cache". */
+/** Las caches de datos son las de runtimeCaching; el precache de la app se llama "workbox-precache-...". */
 export function esCacheDeDatos(nombre: string): boolean {
-  return nombre.startsWith('ngsw:') && nombre.includes(':data:');
+  return CACHES_DE_DATOS.includes(nombre);
 }

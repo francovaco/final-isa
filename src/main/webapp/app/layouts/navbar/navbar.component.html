@@ -7,7 +7,8 @@
     </a>
     <a
       class="navbar-toggler d-lg-none"
-      href="javascript:void(0);"
+      role="button"
+      tabindex="0"
       data-toggle="collapse"
       data-target="#navbarResponsive"
       aria-controls="navbarResponsive"
@@ -36,7 +37,7 @@
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
           >
-            <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="entity-menu" data-cy="entity">
+            <a class="nav-link dropdown-toggle" ngbDropdownToggle role="button" tabindex="0" id="entity-menu" data-cy="entity">
               <span>
                 <fa-icon icon="th-list"></fa-icon>
                 <span>Entidades</span>
@@ -91,7 +92,7 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
         >
-          <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="admin-menu" data-cy="adminMenu">
+          <a class="nav-link dropdown-toggle" ngbDropdownToggle role="button" tabindex="0" id="admin-menu" data-cy="adminMenu">
             <span>
               <fa-icon icon="users-cog"></fa-icon>
               <span>Administración</span>
@@ -167,7 +168,7 @@
           [routerLinkActiveOptions]="{ exact: true }"
         >
           @let accountRef = account();
-          <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="account-menu" data-cy="accountMenu">
+          <a class="nav-link dropdown-toggle" ngbDropdownToggle role="button" tabindex="0" id="account-menu" data-cy="accountMenu">
             @if (!accountRef?.imageUrl) {
               <span>
                 <fa-icon icon="user"></fa-icon>
